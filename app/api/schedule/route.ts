@@ -191,9 +191,26 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
 
 function transformSportsDBData(events: any[], team: string, teamInfo: any) {
   return events.map((event: any) => {
-    const eventDate = event.dateEvent && event.strTime ? 
-      `${event.dateEvent}T${event.strTime}:00Z` : 
-      new Date().toISOString();
+    let eventDate: string;
+    
+    try {
+      if (event.dateEvent && event.strTime) {
+        // Format: YYYY-MM-DDTHH:MM:SSZ
+        eventDate = `${event.dateEvent}T${event.strTime}:00Z`;
+        
+        // Validate the date
+        const testDate = new Date(eventDate);
+        if (isNaN(testDate.getTime())) {
+          console.error('Invalid SportsDB date format:', event.dateEvent, event.strTime);
+          eventDate = new Date().toISOString();
+        }
+      } else {
+        eventDate = new Date().toISOString();
+      }
+    } catch (error) {
+      console.error('Error parsing SportsDB date:', error);
+      eventDate = new Date().toISOString();
+    }
     
     const homeTeam = event.strHomeTeam;
     const awayTeam = event.strAwayTeam;
@@ -232,9 +249,29 @@ function transformESPNData(events: any[], team: string) {
     
     const opponent = isHome ? awayTeam.team.displayName : homeTeam.team.displayName;
     
+    // Validate and format the date
+    let eventDate: string;
+    try {
+      if (event.date) {
+        // ESPN dates are usually in ISO format, but let's validate
+        const testDate = new Date(event.date);
+        if (isNaN(testDate.getTime())) {
+          console.error('Invalid ESPN date format:', event.date);
+          eventDate = new Date().toISOString();
+        } else {
+          eventDate = event.date;
+        }
+      } else {
+        eventDate = new Date().toISOString();
+      }
+    } catch (error) {
+      console.error('Error parsing ESPN date:', error);
+      eventDate = new Date().toISOString();
+    }
+    
     return {
       id: event.id,
-      date: event.date,
+      date: eventDate,
       opponent: opponent,
       isHome: isHome,
       venue: competition.venue?.fullName || 'TBD',
@@ -582,30 +619,51 @@ X-WR-TIMEZONE:America/Los_Angeles
 `;
 
   schedule.forEach(game => {
-    const startDate = new Date(game.date);
-    const endDate = new Date(startDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours later
-    
-    const formatDate = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-    };
-    
-    const summary = game.isHome 
-      ? `${teamName} vs ${game.opponent}`
-      : `${game.opponent} vs ${teamName}`;
-    
-    const description = `${summary}\\nVenue: ${game.venue}\\nLocation: ${game.city}`;
-    
-    ics += `BEGIN:VEVENT
+    try {
+      // Validate and parse the date
+      let startDate: Date;
+      
+      if (!game.date) {
+        console.error('Missing date for game:', game);
+        return; // Skip this game
+      }
+      
+      // Try to parse the date
+      startDate = new Date(game.date);
+      
+      // Check if the date is valid
+      if (isNaN(startDate.getTime())) {
+        console.error('Invalid date for game:', game.date, game);
+        return; // Skip this game
+      }
+      
+      const endDate = new Date(startDate.getTime() + (3 * 60 * 60 * 1000)); // 3 hours later
+      
+      const formatDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+      
+      const summary = game.isHome 
+        ? `${teamName} vs ${game.opponent || 'TBD'}`
+        : `${game.opponent || 'TBD'} vs ${teamName}`;
+      
+      const description = `${summary}\\nVenue: ${game.venue || 'TBD'}\\nLocation: ${game.city || 'TBD'}`;
+      
+      ics += `BEGIN:VEVENT
 UID:${game.id}-${team}-${sport}@teamschedule.app
 DTSTART:${formatDate(startDate)}
 DTEND:${formatDate(endDate)}
 SUMMARY:${summary}
 DESCRIPTION:${description}
-LOCATION:${game.venue}, ${game.city}
+LOCATION:${game.venue || 'TBD'}, ${game.city || 'TBD'}
 STATUS:CONFIRMED
 SEQUENCE:0
 END:VEVENT
 `;
+    } catch (error) {
+      console.error('Error processing game for ICS:', error, game);
+      // Continue with other games
+    }
   });
 
   ics += 'END:VCALENDAR';
