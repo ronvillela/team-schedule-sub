@@ -1,19 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Copy, Download, ExternalLink, Globe } from 'lucide-react';
+import { Calendar, Copy, Download, ExternalLink, Globe, Bug, MessageSquare } from 'lucide-react';
 
 export default function Home() {
   const [team, setTeam] = useState('heat');
   const [sport, setSport] = useState('basketball');
   const [league, setLeague] = useState('nba');
   const [copied, setCopied] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackType, setFeedbackType] = useState('bug');
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   
   const subscriptionUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/schedule?team=${team}&sport=${sport}&league=${league}`;
+  
+  // Track page visit on component mount
+  useEffect(() => {
+    const trackVisit = async () => {
+      try {
+        await fetch('/api/analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'page_visit',
+            data: { page: 'home', timestamp: new Date().toISOString() }
+          })
+        });
+      } catch (error) {
+        console.error('Failed to track visit:', error);
+      }
+    };
+    trackVisit();
+  }, []);
+  
+  // Track team searches
+  const trackTeamSearch = async (teamName: string, sportType: string, leagueType: string) => {
+    try {
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'team_search',
+          data: { team: teamName, sport: sportType, league: leagueType, timestamp: new Date().toISOString() }
+        })
+      });
+    } catch (error) {
+      console.error('Failed to track search:', error);
+    }
+  };
   
   const copyToClipboard = async () => {
     try {
@@ -27,6 +66,9 @@ export default function Home() {
 
   const downloadCalendar = async () => {
     try {
+      // Track download attempt
+      await trackTeamSearch(team, sport, league);
+      
       const response = await fetch(subscriptionUrl);
       if (!response.ok) {
         throw new Error('Failed to fetch calendar');
@@ -42,10 +84,60 @@ export default function Home() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      // Track successful download
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'calendar_download',
+          data: { team, sport, league, timestamp: new Date().toISOString() }
+        })
+      });
     } catch (error) {
       console.error('Error downloading calendar:', error);
+      // Track error
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'download_error',
+          data: { team, sport, league, error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() }
+        })
+      });
       // Fallback to opening in new tab
       window.open(subscriptionUrl, '_blank');
+    }
+  };
+  
+  const submitFeedback = async () => {
+    if (!feedbackMessage.trim()) return;
+    
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: feedbackType,
+          message: feedbackMessage,
+          team,
+          sport,
+          league,
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        })
+      });
+      
+      if (response.ok) {
+        setFeedbackSubmitted(true);
+        setFeedbackMessage('');
+        setTimeout(() => {
+          setFeedbackSubmitted(false);
+          setShowFeedback(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
     }
   };
 
@@ -271,6 +363,102 @@ export default function Home() {
                   The app will automatically find and fetch their schedule data.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Feedback Form */}
+          <Card className="mt-6 shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                Feedback & Error Reporting
+              </CardTitle>
+              <CardDescription>
+                Found a bug or have a suggestion? Let us know!
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!showFeedback ? (
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => setShowFeedback(true)}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Bug className="h-4 w-4" />
+                    Report Issue
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setFeedbackType('suggestion');
+                      setShowFeedback(true);
+                    }}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Make Suggestion
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Feedback Type
+                    </label>
+                    <Select value={feedbackType} onValueChange={setFeedbackType}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bug">🐛 Bug Report</SelectItem>
+                        <SelectItem value="suggestion">💡 Suggestion</SelectItem>
+                        <SelectItem value="error">❌ Error Report</SelectItem>
+                        <SelectItem value="general">💬 General Feedback</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Message
+                    </label>
+                    <textarea
+                      value={feedbackMessage}
+                      onChange={(e) => setFeedbackMessage(e.target.value)}
+                      placeholder="Describe the issue or your suggestion..."
+                      className="w-full p-3 border border-gray-300 rounded-md bg-white resize-none"
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={submitFeedback}
+                      disabled={!feedbackMessage.trim() || feedbackSubmitted}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {feedbackSubmitted ? '✓ Submitted!' : 'Submit Feedback'}
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        setShowFeedback(false);
+                        setFeedbackMessage('');
+                        setFeedbackSubmitted(false);
+                      }}
+                      variant="outline"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                  
+                  {feedbackSubmitted && (
+                    <p className="text-sm text-green-600">
+                      Thank you for your feedback! We'll look into this.
+                    </p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
