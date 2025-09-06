@@ -428,8 +428,84 @@ function getMockSchedule(team: string, sport: string) {
   return mockSchedule;
 }
 
+function capitalizeTeamName(team: string): string {
+  // Handle special cases for common team names
+  const teamMappings: { [key: string]: string } = {
+    'heat': 'Miami Heat',
+    'warriors': 'Golden State Warriors',
+    'lakers': 'Los Angeles Lakers',
+    'celtics': 'Boston Celtics',
+    'bulls': 'Chicago Bulls',
+    'knicks': 'New York Knicks',
+    'nets': 'Brooklyn Nets',
+    'sixers': 'Philadelphia 76ers',
+    'raptors': 'Toronto Raptors',
+    'wizards': 'Washington Wizards',
+    'hawks': 'Atlanta Hawks',
+    'hornets': 'Charlotte Hornets',
+    'magic': 'Orlando Magic',
+    'pistons': 'Detroit Pistons',
+    'pacers': 'Indiana Pacers',
+    'bucks': 'Milwaukee Bucks',
+    'cavaliers': 'Cleveland Cavaliers',
+    'mavericks': 'Dallas Mavericks',
+    'rockets': 'Houston Rockets',
+    'grizzlies': 'Memphis Grizzlies',
+    'pelicans': 'New Orleans Pelicans',
+    'spurs': 'San Antonio Spurs',
+    'thunder': 'Oklahoma City Thunder',
+    'blazers': 'Portland Trail Blazers',
+    'jazz': 'Utah Jazz',
+    'kings': 'Sacramento Kings',
+    'clippers': 'LA Clippers',
+    'suns': 'Phoenix Suns',
+    'nuggets': 'Denver Nuggets',
+    'timberwolves': 'Minnesota Timberwolves',
+    'miami': 'Miami Hurricanes',
+    'university of miami': 'University of Miami',
+    'miami hurricanes': 'Miami Hurricanes',
+    'alabama': 'Alabama Crimson Tide',
+    'georgia': 'Georgia Bulldogs',
+    'ohio state': 'Ohio State Buckeyes',
+    'clemson': 'Clemson Tigers',
+    'notre dame': 'Notre Dame Fighting Irish',
+    'michigan': 'Michigan Wolverines',
+    'texas': 'Texas Longhorns',
+    'oklahoma': 'Oklahoma Sooners',
+    'florida': 'Florida Gators',
+    'florida state': 'Florida State Seminoles',
+    'lsu': 'LSU Tigers',
+    'auburn': 'Auburn Tigers',
+    'tennessee': 'Tennessee Volunteers',
+    'penn state': 'Penn State Nittany Lions',
+    'usc': 'USC Trojans',
+    'oregon': 'Oregon Ducks',
+    'washington': 'Washington Huskies',
+    'utah': 'Utah Utes',
+    'ucla': 'UCLA Bruins',
+    'stanford': 'Stanford Cardinal',
+    'california': 'California Bears',
+    'arizona state': 'Arizona State Sun Devils',
+    'arizona': 'Arizona Wildcats',
+    'colorado': 'Colorado Buffaloes',
+    'oregon state': 'Oregon State Beavers',
+    'washington state': 'Washington State Cougars'
+  };
+
+  // Check if we have a specific mapping
+  const lowerTeam = team.toLowerCase();
+  if (teamMappings[lowerTeam]) {
+    return teamMappings[lowerTeam];
+  }
+
+  // Default capitalization: capitalize first letter of each word
+  return team.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 function generateICSContent(schedule: any[], team: string, sport: string) {
-  const teamName = team.charAt(0).toUpperCase() + team.slice(1);
+  const teamName = capitalizeTeamName(team);
   const sportName = sport.charAt(0).toUpperCase() + sport.slice(1);
   
   let ics = `BEGIN:VCALENDAR
