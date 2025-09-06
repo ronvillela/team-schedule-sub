@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, Copy, Download, ExternalLink, Globe } from 'lucide-react';
 
 export default function Home() {
-  const [team, setTeam] = useState('warriors');
+  const [team, setTeam] = useState('heat');
   const [sport, setSport] = useState('basketball');
   const [league, setLeague] = useState('nba');
   const [copied, setCopied] = useState(false);
@@ -146,7 +146,7 @@ export default function Home() {
                   type="text"
                   value={team}
                   onChange={(e) => setTeam(e.target.value.toLowerCase())}
-                  placeholder="e.g., warriors, lakers, manchester united, real madrid"
+                  placeholder="e.g., heat, lakers, warriors, manchester united, real madrid"
                   className="bg-white"
                 />
                 <p className="text-xs text-gray-500">
