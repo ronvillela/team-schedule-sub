@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://team-schedule-sub.vercel.app/sitemap.xml
+
+# Disallow admin/analytics pages from indexing
+Disallow: /analytics
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /analytics

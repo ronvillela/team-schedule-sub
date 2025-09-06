@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Copy, Download, ExternalLink, Globe, Bug, MessageSquare } from 'lucide-react';
+import { Calendar, Copy, Download, ExternalLink, Globe, Bug, MessageSquare, Heart } from 'lucide-react';
 
 export default function Home() {
   const [team, setTeam] = useState('heat');
@@ -16,6 +16,9 @@ export default function Home() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackType, setFeedbackType] = useState('bug');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [likesLoading, setLikesLoading] = useState(false);
   
   const subscriptionUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/schedule?team=${team}&sport=${sport}&league=${league}`;
   
@@ -36,6 +39,22 @@ export default function Home() {
       }
     };
     trackVisit();
+  }, []);
+
+  // Fetch likes on component mount
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const response = await fetch('/api/likes');
+        if (response.ok) {
+          const data = await response.json();
+          setTotalLikes(data.totalLikes);
+        }
+      } catch (error) {
+        console.error('Failed to fetch likes:', error);
+      }
+    };
+    fetchLikes();
   }, []);
   
   // Track team searches
@@ -141,6 +160,40 @@ export default function Home() {
     }
   };
 
+  const handleLike = async () => {
+    if (likesLoading) return;
+    
+    setLikesLoading(true);
+    try {
+      const action = hasLiked ? 'unlike' : 'like';
+      const response = await fetch('/api/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTotalLikes(data.totalLikes);
+        setHasLiked(data.hasLiked);
+        
+        // Track like action for analytics
+        await fetch('/api/analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'like_action',
+            data: { action, timestamp: new Date().toISOString() }
+          })
+        });
+      }
+    } catch (error) {
+      console.error('Failed to handle like:', error);
+    } finally {
+      setLikesLoading(false);
+    }
+  };
+
   const sportOptions = [
     { value: 'basketball', label: 'Basketball' },
     { value: 'football', label: 'Football' },
@@ -182,31 +235,96 @@ export default function Home() {
     ]
   };
 
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Universal Sports Calendar",
+    "description": "Subscribe to any sports team schedule from any league worldwide. Compatible with Apple Calendar, Google Calendar, and more.",
+    "url": "https://team-schedule-sub.vercel.app",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "NBA Schedule Subscription",
+      "NFL Schedule Subscription", 
+      "MLB Schedule Subscription",
+      "NHL Schedule Subscription",
+      "College Football Schedule Subscription",
+      "Apple Calendar Integration",
+      "Google Calendar Integration",
+      "Outlook Calendar Integration",
+      "Free Sports Calendar Downloads"
+    ],
+    "screenshot": "https://team-schedule-sub.vercel.app/og-image.png"
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
+        <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Globe className="h-8 w-8 text-blue-600" />
             <h1 className="text-4xl font-bold text-gray-900">Universal Sports Calendar</h1>
           </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
             Subscribe to any team's schedule from any sport worldwide. 
             Automatically syncs with Apple Calendar, Google Calendar, and more.
           </p>
-        </div>
+          <div className="text-sm text-gray-500 max-w-3xl mx-auto mb-6">
+            <p>Get free sports calendar subscriptions for NBA, NFL, MLB, NHL, college football, and more. 
+            Download team schedules for Miami Heat, Miami Dolphins, Miami Hurricanes, Lakers, Warriors, 
+            Patriots, Cowboys, and hundreds of other teams worldwide.</p>
+          </div>
+          
+          {/* Like Button */}
+          <div className="flex items-center justify-center gap-2">
+            <Button
+              onClick={handleLike}
+              disabled={likesLoading}
+              variant="outline"
+              className={`flex items-center gap-2 transition-all duration-200 ${
+                hasLiked 
+                  ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100' 
+                  : 'hover:bg-gray-50'
+              }`}
+            >
+              <Heart 
+                className={`h-4 w-4 transition-all duration-200 ${
+                  hasLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'
+                }`} 
+              />
+              <span className="font-medium">
+                {likesLoading ? '...' : totalLikes.toLocaleString()}
+              </span>
+              <span className="text-sm text-gray-500">
+                {totalLikes === 1 ? 'like' : 'likes'}
+              </span>
+            </Button>
+          </div>
+        </header>
 
-        <div className="max-w-2xl mx-auto">
-          <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                Generate Calendar Subscription
-              </CardTitle>
-              <CardDescription>
-                Enter team details to generate a calendar subscription URL
-              </CardDescription>
-            </CardHeader>
+        <main className="max-w-2xl mx-auto">
+          <section>
+            <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                  Generate Calendar Subscription
+                </CardTitle>
+                <CardDescription>
+                  Enter team details to generate a calendar subscription URL
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -321,7 +439,9 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+          </section>
 
+          <section>
           <Card className="mt-6 shadow-lg border-0 bg-white/70 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-lg">Supported Sports & Leagues</CardTitle>
@@ -365,8 +485,10 @@ export default function Home() {
               </div>
             </CardContent>
           </Card>
+          </section>
 
           {/* Feedback Form */}
+          <section>
           <Card className="mt-6 shadow-lg border-0 bg-white/70 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -461,8 +583,10 @@ export default function Home() {
               )}
             </CardContent>
           </Card>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
+    </>
   );
 }
