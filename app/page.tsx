@@ -25,8 +25,28 @@ export default function Home() {
     }
   };
 
-  const downloadCalendar = () => {
-    window.open(subscriptionUrl, '_blank');
+  const downloadCalendar = async () => {
+    try {
+      const response = await fetch(subscriptionUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch calendar');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${team}-${sport}-schedule.ics`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading calendar:', error);
+      // Fallback to opening in new tab
+      window.open(subscriptionUrl, '_blank');
+    }
   };
 
   const sportOptions = [
