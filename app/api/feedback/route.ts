@@ -1,6 +1,8 @@
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
 
+import { sendFeedbackEmail } from '@/lib/email';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -24,11 +26,28 @@ export async function POST(request: Request) {
     
     console.log('Feedback Report:', JSON.stringify(logEntry, null, 2));
     
-    // In a real app, you'd save this to a database and optionally send email notifications
+    // Send email notification
+    const emailResult = await sendFeedbackEmail({
+      type,
+      message,
+      team,
+      sport,
+      league,
+      userAgent: request.headers.get('user-agent') || undefined,
+      url,
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined
+    });
+    
+    if (emailResult.success) {
+      console.log('Email notification sent successfully');
+    } else {
+      console.error('Failed to send email notification:', emailResult.error);
+    }
     
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Thank you for your feedback! We\'ll look into this issue.' 
+      message: 'Thank you for your feedback! We\'ll look into this issue.',
+      emailSent: emailResult.success
     }), {
       headers: {
         'Content-Type': 'application/json',

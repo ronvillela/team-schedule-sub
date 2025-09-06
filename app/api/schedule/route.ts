@@ -1,6 +1,8 @@
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
 
+import { sendErrorNotification } from '@/lib/email';
+
 export async function GET(request: Request) {
   try {
     // Extract parameters from URL
@@ -28,6 +30,26 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Error generating calendar:', error);
+    
+    // Send error notification email
+    try {
+      const { searchParams } = new URL(request.url);
+      const team = searchParams.get('team');
+      const sport = searchParams.get('sport') || 'basketball';
+      const league = searchParams.get('league') || 'nba';
+      
+      await sendErrorNotification(error, {
+        team,
+        sport,
+        league,
+        url: request.url,
+        userAgent: request.headers.get('user-agent'),
+        ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
+      });
+    } catch (emailError) {
+      console.error('Failed to send error notification email:', emailError);
+    }
+    
     return new Response('Error generating calendar', { status: 500 });
   }
 }
