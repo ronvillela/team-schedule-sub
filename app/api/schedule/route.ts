@@ -37,8 +37,15 @@ async function fetchTeamSchedule(team: string, sport: string, league: string) {
     // Try multiple API sources based on sport/league
     let scheduleData = null;
     
-    // Try The Sports DB API first
-    scheduleData = await fetchFromSportsDB(team, sport, league);
+    // For college football, try ESPN first as it has better college data
+    if (sport === 'football' && league === 'college') {
+      scheduleData = await fetchFromESPN(team, sport, league);
+    }
+    
+    // Try The Sports DB API (for other sports or as fallback)
+    if (!scheduleData) {
+      scheduleData = await fetchFromSportsDB(team, sport, league);
+    }
     
     // If that fails, try ESPN API for supported sports
     if (!scheduleData && ['basketball', 'football', 'baseball', 'hockey'].includes(sport)) {
@@ -116,7 +123,7 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
   try {
     const espnSportMap: { [key: string]: string } = {
       'basketball': 'basketball/nba',
-      'football': 'football/nfl',
+      'football': league === 'college' ? 'football/college-football' : 'football/nfl',
       'baseball': 'baseball/mlb',
       'hockey': 'hockey/nhl',
       'soccer': 'soccer/mls'
@@ -127,7 +134,7 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       throw new Error(`ESPN doesn't support sport: ${sport}`);
     }
     
-    const teamId = getESPNTeamId(team, sport);
+    const teamId = getESPNTeamId(team, sport, league);
     if (!teamId) {
       throw new Error(`Team "${team}" not found in ESPN ${sport} data`);
     }
@@ -198,29 +205,62 @@ function transformESPNData(events: any[], team: string) {
   });
 }
 
-function getESPNTeamId(teamName: string, sport: string): string | null {
-  const teamMaps: { [sport: string]: { [team: string]: string } } = {
+function getESPNTeamId(teamName: string, sport: string, league: string): string | null {
+  const teamMaps: { [sport: string]: { [league: string]: { [team: string]: string } } } = {
     basketball: {
-      'warriors': '9', 'lakers': '13', 'celtics': '2', 'heat': '14', 'nuggets': '7',
-      'suns': '21', 'nets': '17', 'knicks': '18', 'bulls': '4', 'cavaliers': '5',
-      'pistons': '8', 'pacers': '11', 'bucks': '15', 'hawks': '1', 'hornets': '30',
-      'magic': '19', 'sixers': '20', 'raptors': '28', 'wizards': '27', 'mavericks': '6',
-      'rockets': '10', 'grizzlies': '29', 'pelicans': '3', 'spurs': '24', 'thunder': '25',
-      'blazers': '22', 'jazz': '26', 'kings': '23', 'clippers': '12', 'timberwolves': '16'
+      'nba': {
+        'warriors': '9', 'lakers': '13', 'celtics': '2', 'heat': '14', 'nuggets': '7',
+        'suns': '21', 'nets': '17', 'knicks': '18', 'bulls': '4', 'cavaliers': '5',
+        'pistons': '8', 'pacers': '11', 'bucks': '15', 'hawks': '1', 'hornets': '30',
+        'magic': '19', 'sixers': '20', 'raptors': '28', 'wizards': '27', 'mavericks': '6',
+        'rockets': '10', 'grizzlies': '29', 'pelicans': '3', 'spurs': '24', 'thunder': '25',
+        'blazers': '22', 'jazz': '26', 'kings': '23', 'clippers': '12', 'timberwolves': '16'
+      }
     },
     football: {
-      'patriots': '17', 'bills': '2', 'jets': '20', 'dolphins': '15',
-      'steelers': '23', 'ravens': '33', 'browns': '5', 'bengals': '4',
-      'titans': '10', 'colts': '11', 'texans': '34', 'jaguars': '30',
-      'chiefs': '12', 'chargers': '24', 'raiders': '13', 'broncos': '7',
-      'cowboys': '6', 'giants': '19', 'eagles': '21', 'commanders': '28',
-      'packers': '9', 'bears': '3', 'lions': '8', 'vikings': '16',
-      'saints': '18', 'falcons': '1', 'panthers': '29', 'buccaneers': '27',
-      '49ers': '25', 'seahawks': '26', 'rams': '14', 'cardinals': '22'
+      'nfl': {
+        'patriots': '17', 'bills': '2', 'jets': '20', 'dolphins': '15',
+        'steelers': '23', 'ravens': '33', 'browns': '5', 'bengals': '4',
+        'titans': '10', 'colts': '11', 'texans': '34', 'jaguars': '30',
+        'chiefs': '12', 'chargers': '24', 'raiders': '13', 'broncos': '7',
+        'cowboys': '6', 'giants': '19', 'eagles': '21', 'commanders': '28',
+        'packers': '9', 'bears': '3', 'lions': '8', 'vikings': '16',
+        'saints': '18', 'falcons': '1', 'panthers': '29', 'buccaneers': '27',
+        '49ers': '25', 'seahawks': '26', 'rams': '14', 'cardinals': '22'
+      },
+      'college': {
+        'miami': '2390', 'university of miami': '2390', 'miami hurricanes': '2390',
+        'alabama': '333', 'alabama crimson tide': '333',
+        'georgia': '333', 'georgia bulldogs': '333',
+        'ohio state': '194', 'ohio state buckeyes': '194',
+        'clemson': '228', 'clemson tigers': '228',
+        'notre dame': '87', 'notre dame fighting irish': '87',
+        'michigan': '130', 'michigan wolverines': '130',
+        'texas': '251', 'texas longhorns': '251',
+        'oklahoma': '201', 'oklahoma sooners': '201',
+        'florida': '57', 'florida gators': '57',
+        'florida state': '52', 'florida state seminoles': '52',
+        'lsu': '99', 'lsu tigers': '99',
+        'auburn': '2', 'auburn tigers': '2',
+        'tennessee': '263', 'tennessee volunteers': '263',
+        'penn state': '213', 'penn state nittany lions': '213',
+        'usc': '30', 'usc trojans': '30',
+        'oregon': '2483', 'oregon ducks': '2483',
+        'washington': '264', 'washington huskies': '264',
+        'utah': '254', 'utah utes': '254',
+        'ucla': '26', 'ucla bruins': '26',
+        'stanford': '24', 'stanford cardinal': '24',
+        'california': '25', 'california bears': '25',
+        'arizona state': '9', 'arizona state sun devils': '9',
+        'arizona': '12', 'arizona wildcats': '12',
+        'colorado': '38', 'colorado buffaloes': '38',
+        'oregon state': '204', 'oregon state beavers': '204',
+        'washington state': '265', 'washington state cougars': '265'
+      }
     }
   };
   
-  return teamMaps[sport]?.[teamName.toLowerCase()] || null;
+  return teamMaps[sport]?.[league]?.[teamName.toLowerCase()] || null;
 }
 
 function getMockSchedule(team: string, sport: string) {
