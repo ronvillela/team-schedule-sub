@@ -65,24 +65,69 @@ async function fetchTeamSchedule(team: string, sport: string, league: string) {
       scheduleData = getMiamiHurricanes2025Schedule();
     }
     
-    // For college football, try ESPN first as it has better college data
-    if (!scheduleData && sport === 'football' && league === 'college') {
-      scheduleData = await fetchFromESPN(team, sport, league);
-    }
-    
-    // Try The Sports DB API (for other sports or as fallback)
+    // Sport-specific API routing for better reliability
     if (!scheduleData) {
-      scheduleData = await fetchFromSportsDB(team, sport, league);
-    }
-    
-    // If that fails, try ESPN API for supported sports
-    if (!scheduleData && ['basketball', 'football', 'baseball', 'hockey'].includes(sport)) {
-      scheduleData = await fetchFromESPN(team, sport, league);
+      switch (sport) {
+        case 'football':
+          if (league === 'college') {
+            // For college football, try TheSportsDB first (more reliable team IDs)
+            scheduleData = await fetchFromSportsDB(team, sport, league);
+            if (!scheduleData || scheduleData.length === 0) {
+              scheduleData = await fetchFromESPN(team, sport, league);
+            }
+          } else {
+            // For NFL, try ESPN first
+            scheduleData = await fetchFromESPN(team, sport, league);
+            if (!scheduleData || scheduleData.length === 0) {
+              scheduleData = await fetchFromSportsDB(team, sport, league);
+            }
+          }
+          break;
+          
+        case 'basketball':
+          if (league === 'nba') {
+            // For NBA, use ESPN only (SportsDB has incorrect team mappings)
+            scheduleData = await fetchFromESPN(team, sport, league);
+          } else {
+            // For college basketball, try TheSportsDB first
+            scheduleData = await fetchFromSportsDB(team, sport, league);
+            if (!scheduleData || scheduleData.length === 0) {
+              scheduleData = await fetchFromESPN(team, sport, league);
+            }
+          }
+          break;
+          
+        case 'soccer':
+          if (league === 'premier') {
+            // For Premier League, try TheSportsDB first (better soccer data)
+            scheduleData = await fetchFromSportsDB(team, sport, league);
+            if (!scheduleData || scheduleData.length === 0) {
+              scheduleData = await fetchFromESPN(team, sport, league);
+            }
+          } else {
+            // For MLS, try ESPN first
+            scheduleData = await fetchFromESPN(team, sport, league);
+            if (!scheduleData || scheduleData.length === 0) {
+              scheduleData = await fetchFromSportsDB(team, sport, league);
+            }
+          }
+          break;
+          
+        case 'baseball':
+        case 'hockey':
+        default:
+          // For other sports, try ESPN first, then TheSportsDB
+          scheduleData = await fetchFromESPN(team, sport, league);
+          if (!scheduleData || scheduleData.length === 0) {
+            scheduleData = await fetchFromSportsDB(team, sport, league);
+          }
+          break;
+      }
     }
     
     // If all APIs fail, return mock data
     if (!scheduleData) {
-      console.log('All APIs failed, using mock data');
+      console.log('All APIs failed, using mock data for', team);
       return getMockSchedule(team, sport);
     }
     
@@ -95,8 +140,33 @@ async function fetchTeamSchedule(team: string, sport: string, league: string) {
 
 async function fetchFromSportsDB(team: string, sport: string, league: string) {
   try {
+    // Use known team IDs for better reliability
+    const knownTeamIds = getSportsDBTeamId(team, sport, league);
+    if (knownTeamIds) {
+      // Try each known team ID until we find one with data
+      for (const teamId of knownTeamIds) {
+        try {
+          const scheduleData = await fetchSportsDBSchedule(teamId, sport, league, team);
+          if (scheduleData && scheduleData.length > 0) {
+            return scheduleData;
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+    
+    // Fallback to search if no known team IDs
+    let searchQuery = team;
+    if (sport === 'football' && league === 'college') {
+      // Add "university" or "college" to the search to get college teams
+      if (!team.toLowerCase().includes('university') && !team.toLowerCase().includes('college')) {
+        searchQuery = `${team} university`;
+      }
+    }
+    
     // First, search for the team to get team ID
-    const teamSearchUrl = `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(team)}`;
+    const teamSearchUrl = `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(searchQuery)}`;
     const teamResponse = await fetch(teamSearchUrl);
     
     if (!teamResponse.ok) {
@@ -109,7 +179,22 @@ async function fetchFromSportsDB(team: string, sport: string, league: string) {
       throw new Error(`Team "${team}" not found in SportsDB`);
     }
     
-    const teamInfo = teamData.teams[0];
+    // Filter teams to get the most relevant one
+    let teamInfo = teamData.teams[0];
+    
+    // For college football, prefer teams with "university" or "college" in the name
+    if (sport === 'football' && league === 'college') {
+      const collegeTeams = teamData.teams.filter((t: any) => 
+        t.strTeam?.toLowerCase().includes('university') || 
+        t.strTeam?.toLowerCase().includes('college') ||
+        t.strLeague?.toLowerCase().includes('college') ||
+        t.strLeague?.toLowerCase().includes('ncaa')
+      );
+      
+      if (collegeTeams.length > 0) {
+        teamInfo = collegeTeams[0];
+      }
+    }
     const teamId = teamInfo.idTeam;
     
     // Get current season
@@ -154,7 +239,7 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       'football': league === 'college' ? 'football/college-football' : 'football/nfl',
       'baseball': 'baseball/mlb',
       'hockey': 'hockey/nhl',
-      'soccer': 'soccer/mls'
+      'soccer': league === 'premier' ? 'soccer/eng.1' : 'soccer/usa.1'
     };
     
     const espnSport = espnSportMap[sport];
@@ -167,22 +252,31 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       throw new Error(`Team "${team}" not found in ESPN ${sport} data`);
     }
     
-    const response = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule`,
-      {
-        headers: {
-          'User-Agent': 'TeamScheduleApp/1.0',
-        },
-      }
-    );
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'TeamScheduleApp/1.0',
+      },
+    });
     
     if (!response.ok) {
       throw new Error(`ESPN API error: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log('ESPN API Response for', team, ':', JSON.stringify(data, null, 2));
-    return transformESPNData(data.events || [], team);
+    
+    // ESPN API returns events in different structures depending on the endpoint
+    let events = [];
+    if (data.events) {
+      events = data.events;
+    } else if (data.schedule && data.schedule.events) {
+      events = data.schedule.events;
+    } else if (Array.isArray(data)) {
+      events = data;
+    }
+    
+    return transformESPNData(events, team);
   } catch (error) {
     console.error('ESPN API error:', error);
     return null;
@@ -233,64 +327,206 @@ function transformSportsDBData(events: any[], team: string, teamInfo: any) {
 
 function transformESPNData(events: any[], team: string) {
   return events.map((event: any) => {
-    const competition = event.competitions[0];
-    const homeTeam = competition.competitors.find((c: any) => c.homeAway === 'home');
-    const awayTeam = competition.competitors.find((c: any) => c.homeAway === 'away');
-    
-    // Better team matching for college football
-    const homeTeamName = homeTeam.team.displayName.toLowerCase();
-    const awayTeamName = awayTeam.team.displayName.toLowerCase();
-    const searchTeam = team.toLowerCase();
-    
-    // Check if our team is home or away
-    const isHome = homeTeamName.includes(searchTeam) || 
-                   homeTeam.team.abbreviation.toLowerCase() === searchTeam ||
-                   homeTeam.team.name.toLowerCase() === searchTeam;
-    
-    const opponent = isHome ? awayTeam.team.displayName : homeTeam.team.displayName;
-    
-    // Validate and format the date
-    let eventDate: string;
     try {
-      if (event.date) {
-        // ESPN dates are usually in ISO format, but let's validate
-        const testDate = new Date(event.date);
-        if (isNaN(testDate.getTime())) {
-          console.error('Invalid ESPN date format:', event.date);
-          eventDate = new Date().toISOString();
-        } else {
-          eventDate = event.date;
-        }
+      // Handle different ESPN API response structures
+      let competition, homeTeam, awayTeam;
+      
+      if (event.competitions && event.competitions[0]) {
+        // Standard ESPN schedule API structure
+        competition = event.competitions[0];
+        homeTeam = competition.competitors.find((c: any) => c.homeAway === 'home');
+        awayTeam = competition.competitors.find((c: any) => c.homeAway === 'away');
+      } else if (event.competitors) {
+        // Direct competitors structure
+        competition = event;
+        homeTeam = event.competitors.find((c: any) => c.homeAway === 'home');
+        awayTeam = event.competitors.find((c: any) => c.homeAway === 'away');
       } else {
+        console.error('Unknown ESPN event structure:', event);
+        return null;
+      }
+      
+      if (!homeTeam || !awayTeam) {
+        console.error('Missing home or away team in ESPN data:', event);
+        return null;
+      }
+      
+      // Better team matching with null safety
+      const homeTeamName = homeTeam.team?.displayName?.toLowerCase() || '';
+      const awayTeamName = awayTeam.team?.displayName?.toLowerCase() || '';
+      const searchTeam = team.toLowerCase();
+      
+      // Check if our team is home or away
+      const isHome = homeTeamName.includes(searchTeam) || 
+                     (homeTeam.team?.abbreviation?.toLowerCase() === searchTeam) ||
+                     (homeTeam.team?.name?.toLowerCase() === searchTeam);
+      
+      const opponent = isHome ? (awayTeam.team?.displayName || 'TBD') : (homeTeam.team?.displayName || 'TBD');
+      
+      // Validate and format the date
+      let eventDate: string;
+      try {
+        if (event.date) {
+          // ESPN dates are usually in ISO format, but let's validate
+          const testDate = new Date(event.date);
+          if (isNaN(testDate.getTime())) {
+            console.error('Invalid ESPN date format:', event.date);
+            eventDate = new Date().toISOString();
+          } else {
+            eventDate = event.date;
+          }
+        } else {
+          eventDate = new Date().toISOString();
+        }
+      } catch (error) {
+        console.error('Error parsing ESPN date:', error);
         eventDate = new Date().toISOString();
       }
+      
+      return {
+        id: event.id || Math.random().toString(),
+        date: eventDate,
+        opponent: opponent,
+        isHome: isHome,
+        venue: competition.venue?.fullName || 'TBD',
+        city: competition.venue?.address?.city ? 
+          `${competition.venue.address.city}, ${competition.venue.address.state}` : 'TBD'
+      };
     } catch (error) {
-      console.error('Error parsing ESPN date:', error);
-      eventDate = new Date().toISOString();
+      console.error('Error transforming ESPN event:', error, event);
+      return null;
+    }
+  }).filter(event => event !== null);
+}
+
+function getSportsDBTeamId(team: string, sport: string, league: string): string[] | null {
+  const teamMaps: { [sport: string]: { [league: string]: { [team: string]: string[] } } } = {
+    football: {
+      college: {
+        'tcu': ['136955'],
+        'texas christian': ['136955'],
+        'texas christian university': ['136955'],
+        'horned frogs': ['136955']
+      },
+      nfl: {
+        'miami dolphins': ['136013'],
+        'dolphins': ['136013'],
+        'new england patriots': ['136014'],
+        'patriots': ['136014'],
+        'buffalo bills': ['136015'],
+        'bills': ['136015'],
+        'new york jets': ['136016'],
+        'jets': ['136016']
+      }
+    },
+    basketball: {
+      nba: {
+        'san antonio spurs': ['136017'],
+        'spurs': ['136017'],
+        'miami heat': ['136018'],
+        'heat': ['136018'],
+        'los angeles lakers': ['136019'],
+        'lakers': ['136019'],
+        'boston celtics': ['136020'],
+        'celtics': ['136020']
+      }
+    },
+    soccer: {
+      premier: {
+        'tottenham hotspur': ['133616'],
+        'tottenham': ['133616'],
+        'spurs': ['133616'],
+        'hotspur': ['133616'],
+        'arsenal': ['136022'],
+        'gunners': ['136022'],
+        'chelsea': ['136023'],
+        'blues': ['136023'],
+        'manchester united': ['136024'],
+        'man united': ['136024'],
+        'man u': ['136024'],
+        'united': ['136024'],
+        'manchester city': ['136025'],
+        'man city': ['136025'],
+        'city': ['136025'],
+        'liverpool': ['136026'],
+        'reds': ['136026']
+      }
+    }
+  };
+  
+  const sportMap = teamMaps[sport];
+  if (!sportMap) return null;
+  
+  const leagueMap = sportMap[league];
+  if (!leagueMap) return null;
+  
+  const teamLower = team.toLowerCase();
+  return leagueMap[teamLower] || null;
+}
+
+async function fetchSportsDBSchedule(teamId: string, sport: string, league: string, teamName: string) {
+  try {
+    // Try current season first
+    const currentYear = new Date().getFullYear();
+    const scheduleUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${currentYear}`;
+    
+    const response = await fetch(scheduleUrl);
+    if (!response.ok) {
+      throw new Error(`SportsDB schedule fetch failed: ${response.status}`);
     }
     
-    return {
-      id: event.id,
-      date: eventDate,
-      opponent: opponent,
-      isHome: isHome,
-      venue: competition.venue?.fullName || 'TBD',
-      city: competition.venue?.address?.city ? 
-        `${competition.venue.address.city}, ${competition.venue.address.state}` : 'TBD'
-    };
-  });
+    const data = await response.json();
+    
+    if (data.events && data.events.length > 0) {
+      return transformSportsDBData(data.events, teamName, null);
+    }
+    
+    // If no events for current year, try next year
+    const nextYear = currentYear + 1;
+    const nextYearUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${nextYear}`;
+    const nextResponse = await fetch(nextYearUrl);
+    
+    if (nextResponse.ok) {
+      const nextData = await nextResponse.json();
+      if (nextData.events && nextData.events.length > 0) {
+        return transformSportsDBData(nextData.events, teamName, null);
+      }
+    }
+    
+    // If no future events, try recent events
+    const recentUrl = `https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`;
+    const recentResponse = await fetch(recentUrl);
+    
+    if (recentResponse.ok) {
+      const recentData = await recentResponse.json();
+      if (recentData.results && recentData.results.length > 0) {
+        return transformSportsDBData(recentData.results, teamName, null);
+      }
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching SportsDB schedule:', error);
+    throw error;
+  }
 }
 
 function getESPNTeamId(teamName: string, sport: string, league: string): string | null {
   const teamMaps: { [sport: string]: { [league: string]: { [team: string]: string } } } = {
     basketball: {
       'nba': {
-        'warriors': '9', 'lakers': '13', 'celtics': '2', 'heat': '14', 'nuggets': '7',
-        'suns': '21', 'nets': '17', 'knicks': '18', 'bulls': '4', 'cavaliers': '5',
-        'pistons': '8', 'pacers': '11', 'bucks': '15', 'hawks': '1', 'hornets': '30',
-        'magic': '19', 'sixers': '20', 'raptors': '28', 'wizards': '27', 'mavericks': '6',
-        'rockets': '10', 'grizzlies': '29', 'pelicans': '3', 'spurs': '24', 'thunder': '25',
-        'blazers': '22', 'jazz': '26', 'kings': '23', 'clippers': '12', 'timberwolves': '16'
+        'warriors': '9', 'golden state warriors': '9', 'lakers': '13', 'los angeles lakers': '13', 
+        'celtics': '2', 'boston celtics': '2', 'heat': '14', 'miami heat': '14', 'nuggets': '7', 'denver nuggets': '7',
+        'suns': '21', 'phoenix suns': '21', 'nets': '17', 'brooklyn nets': '17', 'knicks': '18', 'new york knicks': '18', 
+        'bulls': '4', 'chicago bulls': '4', 'cavaliers': '5', 'cleveland cavaliers': '5',
+        'pistons': '8', 'detroit pistons': '8', 'pacers': '11', 'indiana pacers': '11', 'bucks': '15', 'milwaukee bucks': '15', 
+        'hawks': '1', 'atlanta hawks': '1', 'hornets': '30', 'charlotte hornets': '30',
+        'magic': '19', 'orlando magic': '19', 'sixers': '20', 'philadelphia 76ers': '20', 'raptors': '28', 'toronto raptors': '28', 
+        'wizards': '27', 'washington wizards': '27', 'mavericks': '6', 'dallas mavericks': '6',
+        'rockets': '10', 'houston rockets': '10', 'grizzlies': '29', 'memphis grizzlies': '29', 'pelicans': '3', 'new orleans pelicans': '3', 
+        'spurs': '24', 'san antonio spurs': '24', 'thunder': '25', 'oklahoma city thunder': '25',
+        'blazers': '22', 'portland trail blazers': '22', 'jazz': '26', 'utah jazz': '26', 'kings': '23', 'sacramento kings': '23', 
+        'clippers': '12', 'los angeles clippers': '12', 'timberwolves': '16', 'minnesota timberwolves': '16'
       }
     },
     football: {
@@ -339,7 +575,85 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'arizona': '12', 'arizona wildcats': '12',
         'colorado': '38', 'colorado buffaloes': '38',
         'oregon state': '204', 'oregon state beavers': '204',
-        'washington state': '265', 'washington state cougars': '265'
+        'washington state': '265', 'washington state cougars': '265',
+        'connecticut': '41', 'university of connecticut': '41', 'uconn': '41', 'uconn huskies': '41',
+        'boston college': '103', 'bc': '103', 'bc eagles': '103',
+        'syracuse': '183', 'syracuse orange': '183',
+        'pittsburgh': '221', 'pitt': '221', 'pitt panthers': '221',
+        'louisville': '97', 'louisville cardinals': '97',
+        'virginia tech': '259', 'vt': '259', 'hokies': '259',
+        'north carolina': '153', 'unc': '153', 'tar heels': '153',
+        'duke': '150', 'duke blue devils': '150',
+        'wake forest': '154', 'wake forest demon deacons': '154',
+        'georgia tech': '59', 'yellow jackets': '59',
+        'virginia': '258', 'cavaliers': '258',
+        'nc state': '152', 'north carolina state': '152', 'wolfpack': '152',
+        'tcu': '262', 'texas christian': '262', 'texas christian university': '262', 'horned frogs': '262',
+        'baylor': '239', 'baylor bears': '239',
+        'texas': '251', 'texas longhorns': '251',
+        'texas tech': '264', 'texas tech red raiders': '264',
+        'oklahoma': '201', 'oklahoma sooners': '201',
+        'oklahoma state': '197', 'oklahoma state cowboys': '197',
+        'kansas': '2305', 'kansas jayhawks': '2305',
+        'kansas state': '2306', 'kansas state wildcats': '2306',
+        'iowa state': '66', 'iowa state cyclones': '66',
+        'west virginia': '277', 'west virginia mountaineers': '277'
+      }
+    },
+    soccer: {
+      'premier': {
+        'tottenham': '367', 'spurs': '367', 'tottenham hotspur': '367', 'hotspur': '367',
+        'arsenal': '359', 'gunners': '359',
+        'chelsea': '363', 'blues': '363',
+        'manchester united': '360', 'man united': '360', 'man u': '360', 'united': '360',
+        'manchester city': '362', 'man city': '362', 'city': '362',
+        'liverpool': '364', 'reds': '364',
+        'newcastle': '361', 'newcastle united': '361', 'magpies': '361',
+        'west ham': '371', 'west ham united': '371', 'hammers': '371',
+        'brighton': '331', 'brighton & hove albion': '331', 'seagulls': '331',
+        'crystal palace': '354', 'palace': '354', 'eagles': '354',
+        'fulham': '355', 'cottagers': '355',
+        'brentford': '337', 'bees': '337',
+        'everton': '368', 'toffees': '368',
+        'nottingham forest': '351', 'forest': '351', 'tricky trees': '351',
+        'leicester': '375', 'leicester city': '375', 'foxes': '375',
+        'southampton': '376', 'saints': '376',
+        'leeds': '357', 'leeds united': '357', 'whites': '357',
+        'wolves': '370', 'wolverhampton': '370', 'wolverhampton wanderers': '370',
+        'burnley': '328', 'clarets': '328',
+        'sheffield united': '356', 'blades': '356',
+        'luton': '389', 'luton town': '389', 'hatters': '389',
+        'ipswich': '349', 'ipswich town': '349', 'tractor boys': '349'
+      },
+      'mls': {
+        'la galaxy': '4671', 'galaxy': '4671',
+        'la fc': '4672', 'los angeles fc': '4672',
+        'seattle sounders': '4634', 'sounders': '4634',
+        'portland timbers': '4633', 'timbers': '4633',
+        'vancouver whitecaps': '4635', 'whitecaps': '4635',
+        'real salt lake': '4632', 'rsl': '4632',
+        'colorado rapids': '4627', 'rapids': '4627',
+        'sporting kc': '4631', 'sporting kansas city': '4631', 'sporting': '4631',
+        'houston dynamo': '4628', 'dynamo': '4628',
+        'fc dallas': '4626', 'dallas': '4626',
+        'austin fc': '4625', 'austin': '4625',
+        'minnesota united': '4630', 'minnesota': '4630', 'loons': '4630',
+        'chicago fire': '4624', 'fire': '4624',
+        'columbus crew': '4623', 'crew': '4623',
+        'dc united': '4622', 'dc': '4622',
+        'atlanta united': '4621', 'atlanta': '4621',
+        'inter miami': '4629', 'miami': '4629',
+        'orlando city': '4636', 'orlando': '4636',
+        'new york city fc': '4637', 'nyc fc': '4637', 'nycfc': '4637',
+        'new york red bulls': '4638', 'red bulls': '4638', 'ny red bulls': '4638',
+        'philadelphia union': '4639', 'union': '4639',
+        'new england revolution': '4640', 'revolution': '4640', 'revs': '4640',
+        'toronto fc': '4641', 'toronto': '4641',
+        'montreal impact': '4642', 'montreal': '4642', 'cf montreal': '4642',
+        'nashville sc': '4643', 'nashville': '4643',
+        'cincinnati': '4644', 'fc cincinnati': '4644',
+        'charlotte fc': '4645', 'charlotte': '4645',
+        'st louis city': '4646', 'st louis': '4646'
       }
     }
   };
@@ -589,7 +903,120 @@ function capitalizeTeamName(team: string): string {
     'arizona': 'Arizona Wildcats',
     'colorado': 'Colorado Buffaloes',
     'oregon state': 'Oregon State Beavers',
-    'washington state': 'Washington State Cougars'
+    'washington state': 'Washington State Cougars',
+    'connecticut': 'Connecticut Huskies',
+    'university of connecticut': 'University of Connecticut',
+    'uconn': 'UConn Huskies',
+    'uconn huskies': 'UConn Huskies',
+    'boston college': 'Boston College Eagles',
+    'bc': 'Boston College Eagles',
+    'bc eagles': 'Boston College Eagles',
+    'syracuse': 'Syracuse Orange',
+    'syracuse orange': 'Syracuse Orange',
+    'pittsburgh': 'Pittsburgh Panthers',
+    'pitt': 'Pittsburgh Panthers',
+    'pitt panthers': 'Pittsburgh Panthers',
+    'louisville': 'Louisville Cardinals',
+    'louisville cardinals': 'Louisville Cardinals',
+    'virginia tech': 'Virginia Tech Hokies',
+    'vt': 'Virginia Tech Hokies',
+    'hokies': 'Virginia Tech Hokies',
+    'north carolina': 'North Carolina Tar Heels',
+    'unc': 'North Carolina Tar Heels',
+    'tar heels': 'North Carolina Tar Heels',
+    'duke': 'Duke Blue Devils',
+    'duke blue devils': 'Duke Blue Devils',
+    'wake forest': 'Wake Forest Demon Deacons',
+    'wake forest demon deacons': 'Wake Forest Demon Deacons',
+    'georgia tech': 'Georgia Tech Yellow Jackets',
+    'yellow jackets': 'Georgia Tech Yellow Jackets',
+    'virginia': 'Virginia Cavaliers',
+    'cavaliers': 'Virginia Cavaliers',
+    'nc state': 'NC State Wolfpack',
+    'north carolina state': 'NC State Wolfpack',
+    'wolfpack': 'NC State Wolfpack',
+    'tcu': 'TCU Horned Frogs',
+    'texas christian': 'TCU Horned Frogs',
+    'texas christian university': 'TCU Horned Frogs',
+    'horned frogs': 'TCU Horned Frogs',
+    'baylor': 'Baylor Bears',
+    'baylor bears': 'Baylor Bears',
+    'texas': 'Texas Longhorns',
+    'texas longhorns': 'Texas Longhorns',
+    'texas tech': 'Texas Tech Red Raiders',
+    'texas tech red raiders': 'Texas Tech Red Raiders',
+    'oklahoma': 'Oklahoma Sooners',
+    'oklahoma sooners': 'Oklahoma Sooners',
+    'oklahoma state': 'Oklahoma State Cowboys',
+    'oklahoma state cowboys': 'Oklahoma State Cowboys',
+    'kansas': 'Kansas Jayhawks',
+    'kansas jayhawks': 'Kansas Jayhawks',
+    'kansas state': 'Kansas State Wildcats',
+    'kansas state wildcats': 'Kansas State Wildcats',
+    'iowa state': 'Iowa State Cyclones',
+    'iowa state cyclones': 'Iowa State Cyclones',
+    'west virginia': 'West Virginia Mountaineers',
+    'west virginia mountaineers': 'West Virginia Mountaineers',
+    // Soccer teams
+    'tottenham': 'Tottenham Hotspur',
+    'spurs': 'Tottenham Hotspur',
+    'tottenham hotspur': 'Tottenham Hotspur',
+    'hotspur': 'Tottenham Hotspur',
+    'arsenal': 'Arsenal',
+    'gunners': 'Arsenal',
+    'chelsea': 'Chelsea',
+    'blues': 'Chelsea',
+    'manchester united': 'Manchester United',
+    'man united': 'Manchester United',
+    'man u': 'Manchester United',
+    'united': 'Manchester United',
+    'manchester city': 'Manchester City',
+    'man city': 'Manchester City',
+    'city': 'Manchester City',
+    'liverpool': 'Liverpool',
+    'reds': 'Liverpool',
+    'newcastle': 'Newcastle United',
+    'newcastle united': 'Newcastle United',
+    'magpies': 'Newcastle United',
+    'west ham': 'West Ham United',
+    'west ham united': 'West Ham United',
+    'hammers': 'West Ham United',
+    'brighton': 'Brighton & Hove Albion',
+    'brighton & hove albion': 'Brighton & Hove Albion',
+    'seagulls': 'Brighton & Hove Albion',
+    'crystal palace': 'Crystal Palace',
+    'palace': 'Crystal Palace',
+    'eagles': 'Crystal Palace',
+    'fulham': 'Fulham',
+    'cottagers': 'Fulham',
+    'brentford': 'Brentford',
+    'bees': 'Brentford',
+    'everton': 'Everton',
+    'toffees': 'Everton',
+    'nottingham forest': 'Nottingham Forest',
+    'forest': 'Nottingham Forest',
+    'tricky trees': 'Nottingham Forest',
+    'leicester': 'Leicester City',
+    'leicester city': 'Leicester City',
+    'foxes': 'Leicester City',
+    'southampton': 'Southampton',
+    'saints': 'Southampton',
+    'leeds': 'Leeds United',
+    'leeds united': 'Leeds United',
+    'whites': 'Leeds United',
+    'wolves': 'Wolverhampton Wanderers',
+    'wolverhampton': 'Wolverhampton Wanderers',
+    'wolverhampton wanderers': 'Wolverhampton Wanderers',
+    'burnley': 'Burnley',
+    'clarets': 'Burnley',
+    'sheffield united': 'Sheffield United',
+    'blades': 'Sheffield United',
+    'luton': 'Luton Town',
+    'luton town': 'Luton Town',
+    'hatters': 'Luton Town',
+    'ipswich': 'Ipswich Town',
+    'ipswich town': 'Ipswich Town',
+    'tractor boys': 'Ipswich Town'
   };
 
   // Check if we have a specific mapping
