@@ -3,6 +3,170 @@ export const dynamic = 'force-dynamic';
 
 import { sendErrorNotification } from '@/lib/email';
 
+// Team timezone mapping
+const teamTimezones: { [key: string]: string } = {
+  // NBA Teams
+  'kings': 'America/Los_Angeles', // Sacramento Kings
+  'lakers': 'America/Los_Angeles', // Los Angeles Lakers
+  'clippers': 'America/Los_Angeles', // Los Angeles Clippers
+  'warriors': 'America/Los_Angeles', // Golden State Warriors
+  'spurs': 'America/Chicago', // San Antonio Spurs
+  'mavericks': 'America/Chicago', // Dallas Mavericks
+  'rockets': 'America/Chicago', // Houston Rockets
+  'grizzlies': 'America/Chicago', // Memphis Grizzlies
+  'pelicans': 'America/Chicago', // New Orleans Pelicans
+  'thunder': 'America/Chicago', // Oklahoma City Thunder
+  'heat': 'America/New_York', // Miami Heat
+  'magic': 'America/New_York', // Orlando Magic
+  'hawks': 'America/New_York', // Atlanta Hawks
+  'hornets': 'America/New_York', // Charlotte Hornets
+  'wizards': 'America/New_York', // Washington Wizards
+  'celtics': 'America/New_York', // Boston Celtics
+  'nets': 'America/New_York', // Brooklyn Nets
+  'knicks': 'America/New_York', // New York Knicks
+  'sixers': 'America/New_York', // Philadelphia 76ers
+  'raptors': 'America/Toronto', // Toronto Raptors
+  'cavaliers': 'America/New_York', // Cleveland Cavaliers
+  'pistons': 'America/New_York', // Detroit Pistons
+  'pacers': 'America/New_York', // Indiana Pacers
+  'bucks': 'America/Chicago', // Milwaukee Bucks
+  'bulls': 'America/Chicago', // Chicago Bulls
+  'timberwolves': 'America/Chicago', // Minnesota Timberwolves
+  'nuggets': 'America/Denver', // Denver Nuggets
+  'jazz': 'America/Denver', // Utah Jazz
+  'blazers': 'America/Los_Angeles', // Portland Trail Blazers
+  'suns': 'America/Phoenix', // Phoenix Suns
+  
+  // NFL Teams
+  'raiders': 'America/Los_Angeles', // Las Vegas Raiders
+  'rams': 'America/Los_Angeles', // Los Angeles Rams
+  'chargers': 'America/Los_Angeles', // Los Angeles Chargers
+  '49ers': 'America/Los_Angeles', // San Francisco 49ers
+  'seahawks': 'America/Los_Angeles', // Seattle Seahawks
+  'cardinals': 'America/Phoenix', // Arizona Cardinals
+  'broncos': 'America/Denver', // Denver Broncos
+  'chiefs': 'America/Chicago', // Kansas City Chiefs
+  'cowboys': 'America/Chicago', // Dallas Cowboys
+  'texans': 'America/Chicago', // Houston Texans
+  'colts': 'America/New_York', // Indianapolis Colts
+  'jaguars': 'America/New_York', // Jacksonville Jaguars
+  'titans': 'America/Chicago', // Tennessee Titans
+  'falcons': 'America/New_York', // Atlanta Falcons
+  'panthers': 'America/New_York', // Carolina Panthers
+  'saints': 'America/Chicago', // New Orleans Saints
+  'buccaneers': 'America/New_York', // Tampa Bay Buccaneers
+  'dolphins': 'America/New_York', // Miami Dolphins
+  'patriots': 'America/New_York', // New England Patriots
+  'bills': 'America/New_York', // Buffalo Bills
+  'jets': 'America/New_York', // New York Jets
+  'giants': 'America/New_York', // New York Giants
+  'eagles': 'America/New_York', // Philadelphia Eagles
+  'commanders': 'America/New_York', // Washington Commanders
+  'ravens': 'America/New_York', // Baltimore Ravens
+  'bengals': 'America/New_York', // Cincinnati Bengals
+  'browns': 'America/New_York', // Cleveland Browns
+  'steelers': 'America/New_York', // Pittsburgh Steelers
+  'bears': 'America/Chicago', // Chicago Bears
+  'lions': 'America/New_York', // Detroit Lions
+  'packers': 'America/Chicago', // Milwaukee Packers
+  'vikings': 'America/Chicago', // Minnesota Vikings
+  
+  // College Football Teams (major programs)
+  'usc': 'America/Los_Angeles', // USC Trojans
+  'ucla': 'America/Los_Angeles', // UCLA Bruins
+  'stanford': 'America/Los_Angeles', // Stanford Cardinal
+  'cal': 'America/Los_Angeles', // California Golden Bears
+  'oregon': 'America/Los_Angeles', // Oregon Ducks
+  'oregon state': 'America/Los_Angeles', // Oregon State Beavers
+  'washington': 'America/Los_Angeles', // Washington Huskies
+  'washington state': 'America/Los_Angeles', // Washington State Cougars
+  'utah': 'America/Denver', // Utah Utes
+  'colorado': 'America/Denver', // Colorado Buffaloes
+  'arizona': 'America/Phoenix', // Arizona Wildcats
+  'arizona state': 'America/Phoenix', // Arizona State Sun Devils
+  'texas longhorns': 'America/Chicago', // Texas Longhorns
+  'oklahoma sooners': 'America/Chicago', // Oklahoma Sooners
+  'oklahoma state': 'America/Chicago', // Oklahoma State Cowboys
+  'tcu': 'America/Chicago', // TCU Horned Frogs
+  'baylor bears': 'America/Chicago', // Baylor Bears
+  'texas tech': 'America/Chicago', // Texas Tech Red Raiders
+  'kansas jayhawks': 'America/Chicago', // Kansas Jayhawks
+  'kansas state': 'America/Chicago', // Kansas State Wildcats
+  'iowa state': 'America/Chicago', // Iowa State Cyclones
+  'nebraska': 'America/Chicago', // Nebraska Cornhuskers
+  'iowa': 'America/Chicago', // Iowa Hawkeyes
+  'wisconsin': 'America/Chicago', // Wisconsin Badgers
+  'minnesota': 'America/Chicago', // Minnesota Golden Gophers
+  'northwestern': 'America/Chicago', // Northwestern Wildcats
+  'illinois': 'America/Chicago', // Illinois Fighting Illini
+  'purdue': 'America/New_York', // Purdue Boilermakers
+  'indiana': 'America/New_York', // Indiana Hoosiers
+  'michigan': 'America/New_York', // Michigan Wolverines
+  'michigan state': 'America/New_York', // Michigan State Spartans
+  'ohio state': 'America/New_York', // Ohio State Buckeyes
+  'penn state': 'America/New_York', // Penn State Nittany Lions
+  'rutgers': 'America/New_York', // Rutgers Scarlet Knights
+  'maryland': 'America/New_York', // Maryland Terrapins
+  'miami': 'America/New_York', // Miami Hurricanes
+  'florida': 'America/New_York', // Florida Gators
+  'florida state': 'America/New_York', // Florida State Seminoles
+  'lsu tigers': 'America/Chicago', // LSU Tigers
+  'auburn tigers': 'America/Chicago', // Auburn Tigers
+  'alabama': 'America/Chicago', // Alabama Crimson Tide
+  'georgia': 'America/New_York', // Georgia Bulldogs
+  'clemson': 'America/New_York', // Clemson Tigers
+  'south carolina': 'America/New_York', // South Carolina Gamecocks
+  'tennessee': 'America/New_York', // Tennessee Volunteers
+  'kentucky': 'America/New_York', // Kentucky Wildcats
+  'vanderbilt': 'America/Chicago', // Vanderbilt Commodores
+  'missouri': 'America/Chicago', // Missouri Tigers
+  'arkansas': 'America/Chicago', // Arkansas Razorbacks
+  'ole miss': 'America/Chicago', // Ole Miss Rebels
+  'mississippi state': 'America/Chicago', // Mississippi State Bulldogs
+  'virginia tech': 'America/New_York', // Virginia Tech Hokies
+  'virginia cavaliers': 'America/New_York', // Virginia Cavaliers
+  'north carolina': 'America/New_York', // North Carolina Tar Heels
+  'duke': 'America/New_York', // Duke Blue Devils
+  'nc state': 'America/New_York', // NC State Wolfpack
+  'wake forest': 'America/New_York', // Wake Forest Demon Deacons
+  'georgia tech': 'America/New_York', // Georgia Tech Yellow Jackets
+  'notre dame': 'America/New_York', // Notre Dame Fighting Irish
+  'west virginia': 'America/New_York', // West Virginia Mountaineers
+  'uconn': 'America/New_York', // UConn Huskies
+  
+  // Soccer Teams
+  'lafc': 'America/Los_Angeles', // Los Angeles FC
+  'la galaxy': 'America/Los_Angeles', // LA Galaxy
+  'seattle sounders': 'America/Los_Angeles', // Seattle Sounders FC
+  'portland timbers': 'America/Los_Angeles', // Portland Timbers
+  'vancouver whitecaps': 'America/Los_Angeles', // Vancouver Whitecaps FC
+  'real salt lake': 'America/Denver', // Real Salt Lake
+  'colorado rapids': 'America/Denver', // Colorado Rapids
+  'sporting kc': 'America/Chicago', // Sporting Kansas City
+  'fc dallas': 'America/Chicago', // FC Dallas
+  'houston dynamo': 'America/Chicago', // Houston Dynamo FC
+  'austin fc': 'America/Chicago', // Austin FC
+  'minnesota united': 'America/Chicago', // Minnesota United FC
+  'chicago fire': 'America/Chicago', // Chicago Fire FC
+  'st louis city': 'America/Chicago', // St. Louis City SC
+  'nashville sc': 'America/Chicago', // Nashville SC
+  'atlanta united': 'America/New_York', // Atlanta United FC
+  'orlando city': 'America/New_York', // Orlando City SC
+  'inter miami': 'America/New_York', // Inter Miami CF
+  'tampa bay': 'America/New_York', // Tampa Bay Rowdies
+  'dc united': 'America/New_York', // D.C. United
+  'philadelphia union': 'America/New_York', // Philadelphia Union
+  'new york red bulls': 'America/New_York', // New York Red Bulls
+  'nycfc': 'America/New_York', // New York City FC
+  'new england revolution': 'America/New_York', // New England Revolution
+  'toronto fc': 'America/Toronto', // Toronto FC
+  'cf montreal': 'America/Toronto', // CF Montréal
+  'columbus crew': 'America/New_York', // Columbus Crew
+  'fc cincinnati': 'America/New_York', // FC Cincinnati
+  'charlotte fc': 'America/New_York', // Charlotte FC
+  'san jose earthquakes': 'America/Los_Angeles', // San Jose Earthquakes
+};
+
 export async function GET(request: Request) {
   try {
     // Extract parameters from URL
@@ -1031,6 +1195,9 @@ function generateICSContent(schedule: any[], team: string, sport: string) {
   const teamName = capitalizeTeamName(team);
   const sportName = sport.charAt(0).toUpperCase() + sport.slice(1);
   
+  // Get team timezone, default to America/Los_Angeles if not found
+  const teamTimezone = teamTimezones[team.toLowerCase()] || 'America/Los_Angeles';
+  
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Team Schedule App//Team Calendar//EN
@@ -1038,7 +1205,7 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:${teamName} ${sportName} Schedule
 X-WR-CALDESC:${teamName} ${sport} game schedule
-X-WR-TIMEZONE:America/Los_Angeles
+X-WR-TIMEZONE:${teamTimezone}
 `;
 
   schedule.forEach(game => {
@@ -1070,7 +1237,7 @@ X-WR-TIMEZONE:America/Los_Angeles
         ? `${teamName} vs ${game.opponent || 'TBD'}`
         : `${game.opponent || 'TBD'} vs ${teamName}`;
       
-      const description = `${summary}\\nVenue: ${game.venue || 'TBD'}\\nLocation: ${game.city || 'TBD'}`;
+      const description = `${summary}\\nVenue: ${game.venue || 'TBD'}\\nLocation: ${game.city || 'TBD'}\\nTimezone: ${teamTimezone}`;
       
       ics += `BEGIN:VEVENT
 UID:${game.id}-${team}-${sport}@teamschedule.app

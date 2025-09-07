@@ -564,30 +564,20 @@ export default function Home() {
                 <label htmlFor="team" className="text-sm font-medium text-gray-700">
                   Team Name
                 </label>
-                <div className="space-y-2">
-                  <Select value={team} onValueChange={setTeam}>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Select a team" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(teamOptions[sport]?.[league] || []).map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="team-custom"
-                    type="text"
-                    value={team}
-                    onChange={(e) => setTeam(e.target.value.toLowerCase())}
-                    placeholder="Or type a custom team name..."
-                    className="bg-white"
-                  />
-                </div>
+                <Select value={team} onValueChange={setTeam}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Select a team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(teamOptions[sport]?.[league] || []).map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-gray-500">
-                  Select from the dropdown or enter a custom team name. Works with teams from major leagues worldwide.
+                  Select your team from the dropdown. Teams are organized by sport and league.
                 </p>
               </div>
 
