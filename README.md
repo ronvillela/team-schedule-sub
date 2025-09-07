@@ -8,7 +8,7 @@ A modern web application that allows users to subscribe to any sports team's sch
 
 ## ✨ Features
 
-- 🏆 **Multi-Sport Support**: Basketball, Football, Baseball, Hockey, Soccer, Tennis, Golf, Cricket, Rugby, Motorsport
+- 🏆 **Multi-Sport Support**: Basketball, Football, Baseball, Hockey, Soccer
 - 🌍 **Global Leagues**: NBA, NFL, MLB, NHL, Premier League, La Liga, Bundesliga, Serie A, MLS, and more
 - 📅 **Universal Calendar Compatibility**: Works with Apple Calendar, Google Calendar, Outlook, and any calendar app that supports .ics files
 - 🎨 **Modern UI**: Beautiful, responsive design built with Tailwind CSS and shadcn/ui
@@ -80,7 +80,6 @@ A modern web application that allows users to subscribe to any sports team's sch
 - MLS, Premier League, La Liga, Bundesliga, Serie A, Ligue 1
 
 ### Other Sports
-- Tennis, Golf, Cricket, Rugby, Motorsport
 
 ## 🔧 API Endpoints
 

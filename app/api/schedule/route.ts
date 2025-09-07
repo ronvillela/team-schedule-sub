@@ -250,8 +250,25 @@ async function fetchTeamSchedule(team: string, sport: string, league: string) {
           
         case 'basketball':
           if (league === 'nba') {
-            // For NBA, use ESPN only (SportsDB has incorrect team mappings)
+            // For NBA, try ESPN first, then SportsDB for comprehensive data
             scheduleData = await fetchFromESPN(team, sport, league);
+            if (!scheduleData || scheduleData.length < 20) {
+              // If ESPN doesn't have enough games, try SportsDB as supplement
+              const sportsDBData = await fetchFromSportsDB(team, sport, league);
+              if (sportsDBData && sportsDBData.length > 0) {
+                if (scheduleData) {
+                  // Combine both datasets and remove duplicates
+                  const combinedData = [...scheduleData, ...sportsDBData];
+                  const uniqueData = combinedData.filter((game, index, self) => 
+                    index === self.findIndex(g => g && game && (g.id === game.id || 
+                      (g.date === game.date && g.opponent === game.opponent)))
+                  );
+                  scheduleData = uniqueData;
+                } else {
+                  scheduleData = sportsDBData;
+                }
+              }
+            }
           } else {
             // For college basketball, try TheSportsDB first
             scheduleData = await fetchFromSportsDB(team, sport, league);
@@ -416,7 +433,8 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       throw new Error(`Team "${team}" not found in ESPN ${sport} data`);
     }
     
-    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule`;
+    // Add parameters to get more comprehensive schedule data
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?dates=20240101-20261231&seasontype=1,2,3`;
     
     const response = await fetch(url, {
       headers: {
@@ -630,22 +648,21 @@ function getSportsDBTeamId(team: string, sport: string, league: string): string[
 
 async function fetchSportsDBSchedule(teamId: string, sport: string, league: string, teamName: string) {
   try {
-    // Try current season first
     const currentYear = new Date().getFullYear();
-    const scheduleUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${currentYear}`;
+    const allEvents: any[] = [];
     
-    const response = await fetch(scheduleUrl);
-    if (!response.ok) {
-      throw new Error(`SportsDB schedule fetch failed: ${response.status}`);
+    // Fetch current season
+    const currentYearUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${currentYear}`;
+    const currentResponse = await fetch(currentYearUrl);
+    
+    if (currentResponse.ok) {
+      const currentData = await currentResponse.json();
+      if (currentData.events && currentData.events.length > 0) {
+        allEvents.push(...currentData.events);
+      }
     }
     
-    const data = await response.json();
-    
-    if (data.events && data.events.length > 0) {
-      return transformSportsDBData(data.events, teamName, null);
-    }
-    
-    // If no events for current year, try next year
+    // Fetch next season
     const nextYear = currentYear + 1;
     const nextYearUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${nextYear}`;
     const nextResponse = await fetch(nextYearUrl);
@@ -653,22 +670,48 @@ async function fetchSportsDBSchedule(teamId: string, sport: string, league: stri
     if (nextResponse.ok) {
       const nextData = await nextResponse.json();
       if (nextData.events && nextData.events.length > 0) {
-        return transformSportsDBData(nextData.events, teamName, null);
+        allEvents.push(...nextData.events);
       }
     }
     
-    // If no future events, try recent events
-    const recentUrl = `https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`;
-    const recentResponse = await fetch(recentUrl);
+    // Fetch previous season (for teams that might have games from last season)
+    const prevYear = currentYear - 1;
+    const prevYearUrl = `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${teamId}&s=${prevYear}`;
+    const prevResponse = await fetch(prevYearUrl);
     
-    if (recentResponse.ok) {
-      const recentData = await recentResponse.json();
-      if (recentData.results && recentData.results.length > 0) {
-        return transformSportsDBData(recentData.results, teamName, null);
+    if (prevResponse.ok) {
+      const prevData = await prevResponse.json();
+      if (prevData.events && prevData.events.length > 0) {
+        allEvents.push(...prevData.events);
       }
     }
     
-    return [];
+    // If we still don't have enough events, try recent events
+    if (allEvents.length < 10) {
+      const recentUrl = `https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`;
+      const recentResponse = await fetch(recentUrl);
+      
+      if (recentResponse.ok) {
+        const recentData = await recentResponse.json();
+        if (recentData.results && recentData.results.length > 0) {
+          allEvents.push(...recentData.results);
+        }
+      }
+    }
+    
+    // Remove duplicates and sort by date
+    const uniqueEvents = allEvents.filter((event, index, self) => 
+      index === self.findIndex(e => e.idEvent === event.idEvent)
+    );
+    
+    // Sort by date (most recent first, then future games)
+    uniqueEvents.sort((a, b) => {
+      const dateA = new Date(a.dateEvent || a.strDate || '');
+      const dateB = new Date(b.dateEvent || b.strDate || '');
+      return dateA.getTime() - dateB.getTime();
+    });
+    
+    return transformSportsDBData(uniqueEvents, teamName, null);
   } catch (error) {
     console.error('Error fetching SportsDB schedule:', error);
     throw error;

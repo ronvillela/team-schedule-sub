@@ -199,12 +199,7 @@ export default function Home() {
     { value: 'football', label: 'Football' },
     { value: 'baseball', label: 'Baseball' },
     { value: 'hockey', label: 'Hockey' },
-    { value: 'soccer', label: 'Soccer' },
-    { value: 'tennis', label: 'Tennis' },
-    { value: 'golf', label: 'Golf' },
-    { value: 'cricket', label: 'Cricket' },
-    { value: 'rugby', label: 'Rugby' },
-    { value: 'motorsport', label: 'Motorsport' }
+    { value: 'soccer', label: 'Soccer' }
   ];
 
   const leagueOptions: { [key: string]: { value: string; label: string }[] } = {
@@ -667,10 +662,6 @@ export default function Home() {
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">⚽ Soccer</h4>
                   <p className="text-sm text-gray-600">Premier League, La Liga, Bundesliga, Serie A, MLS</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-gray-800">🎾 Other Sports</h4>
-                  <p className="text-sm text-gray-600">Tennis, Golf, Cricket, Rugby, Motorsport</p>
                 </div>
               </div>
               
