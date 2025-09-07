@@ -227,12 +227,196 @@ export default function Home() {
     ],
     soccer: [
       { value: 'mls', label: 'MLS' },
-      { value: 'premier-league', label: 'Premier League' },
+      { value: 'premier', label: 'Premier League' },
       { value: 'la-liga', label: 'La Liga' },
       { value: 'bundesliga', label: 'Bundesliga' },
       { value: 'serie-a', label: 'Serie A' },
       { value: 'ligue-1', label: 'Ligue 1' }
     ]
+  };
+
+  const teamOptions: { [sport: string]: { [league: string]: { value: string; label: string }[] } } = {
+    basketball: {
+      nba: [
+        { value: 'heat', label: 'Miami Heat' },
+        { value: 'lakers', label: 'Los Angeles Lakers' },
+        { value: 'warriors', label: 'Golden State Warriors' },
+        { value: 'celtics', label: 'Boston Celtics' },
+        { value: 'nuggets', label: 'Denver Nuggets' },
+        { value: 'suns', label: 'Phoenix Suns' },
+        { value: 'nets', label: 'Brooklyn Nets' },
+        { value: 'knicks', label: 'New York Knicks' },
+        { value: 'bulls', label: 'Chicago Bulls' },
+        { value: 'cavaliers', label: 'Cleveland Cavaliers' },
+        { value: 'pistons', label: 'Detroit Pistons' },
+        { value: 'pacers', label: 'Indiana Pacers' },
+        { value: 'bucks', label: 'Milwaukee Bucks' },
+        { value: 'hawks', label: 'Atlanta Hawks' },
+        { value: 'hornets', label: 'Charlotte Hornets' },
+        { value: 'magic', label: 'Orlando Magic' },
+        { value: 'sixers', label: 'Philadelphia 76ers' },
+        { value: 'raptors', label: 'Toronto Raptors' },
+        { value: 'wizards', label: 'Washington Wizards' },
+        { value: 'mavericks', label: 'Dallas Mavericks' },
+        { value: 'rockets', label: 'Houston Rockets' },
+        { value: 'grizzlies', label: 'Memphis Grizzlies' },
+        { value: 'pelicans', label: 'New Orleans Pelicans' },
+        { value: 'spurs', label: 'San Antonio Spurs' },
+        { value: 'thunder', label: 'Oklahoma City Thunder' },
+        { value: 'blazers', label: 'Portland Trail Blazers' },
+        { value: 'jazz', label: 'Utah Jazz' },
+        { value: 'kings', label: 'Sacramento Kings' },
+        { value: 'clippers', label: 'Los Angeles Clippers' },
+        { value: 'timberwolves', label: 'Minnesota Timberwolves' }
+      ]
+    },
+    football: {
+      nfl: [
+        { value: 'dolphins', label: 'Miami Dolphins' },
+        { value: 'patriots', label: 'New England Patriots' },
+        { value: 'bills', label: 'Buffalo Bills' },
+        { value: 'jets', label: 'New York Jets' },
+        { value: 'ravens', label: 'Baltimore Ravens' },
+        { value: 'bengals', label: 'Cincinnati Bengals' },
+        { value: 'browns', label: 'Cleveland Browns' },
+        { value: 'steelers', label: 'Pittsburgh Steelers' },
+        { value: 'texans', label: 'Houston Texans' },
+        { value: 'colts', label: 'Indianapolis Colts' },
+        { value: 'jaguars', label: 'Jacksonville Jaguars' },
+        { value: 'titans', label: 'Tennessee Titans' },
+        { value: 'broncos', label: 'Denver Broncos' },
+        { value: 'chiefs', label: 'Kansas City Chiefs' },
+        { value: 'raiders', label: 'Las Vegas Raiders' },
+        { value: 'chargers', label: 'Los Angeles Chargers' },
+        { value: 'cowboys', label: 'Dallas Cowboys' },
+        { value: 'giants', label: 'New York Giants' },
+        { value: 'eagles', label: 'Philadelphia Eagles' },
+        { value: 'commanders', label: 'Washington Commanders' },
+        { value: 'bears', label: 'Chicago Bears' },
+        { value: 'lions', label: 'Detroit Lions' },
+        { value: 'packers', label: 'Green Bay Packers' },
+        { value: 'vikings', label: 'Minnesota Vikings' },
+        { value: 'falcons', label: 'Atlanta Falcons' },
+        { value: 'panthers', label: 'Carolina Panthers' },
+        { value: 'saints', label: 'New Orleans Saints' },
+        { value: 'buccaneers', label: 'Tampa Bay Buccaneers' },
+        { value: 'cardinals', label: 'Arizona Cardinals' },
+        { value: 'rams', label: 'Los Angeles Rams' },
+        { value: '49ers', label: 'San Francisco 49ers' },
+        { value: 'seahawks', label: 'Seattle Seahawks' }
+      ],
+      college: [
+        { value: 'miami', label: 'Miami Hurricanes' },
+        { value: 'alabama', label: 'Alabama Crimson Tide' },
+        { value: 'georgia', label: 'Georgia Bulldogs' },
+        { value: 'ohio state', label: 'Ohio State Buckeyes' },
+        { value: 'clemson', label: 'Clemson Tigers' },
+        { value: 'notre dame', label: 'Notre Dame Fighting Irish' },
+        { value: 'michigan', label: 'Michigan Wolverines' },
+        { value: 'texas longhorns', label: 'Texas Longhorns' },
+        { value: 'oklahoma sooners', label: 'Oklahoma Sooners' },
+        { value: 'florida', label: 'Florida Gators' },
+        { value: 'florida state', label: 'Florida State Seminoles' },
+        { value: 'lsu tigers', label: 'LSU Tigers' },
+        { value: 'auburn tigers', label: 'Auburn Tigers' },
+        { value: 'penn state', label: 'Penn State Nittany Lions' },
+        { value: 'usc', label: 'USC Trojans' },
+        { value: 'ucla', label: 'UCLA Bruins' },
+        { value: 'oregon', label: 'Oregon Ducks' },
+        { value: 'washington', label: 'Washington Huskies' },
+        { value: 'utah', label: 'Utah Utes' },
+        { value: 'stanford', label: 'Stanford Cardinal' },
+        { value: 'cal', label: 'California Golden Bears' },
+        { value: 'arizona state', label: 'Arizona State Sun Devils' },
+        { value: 'arizona', label: 'Arizona Wildcats' },
+        { value: 'colorado', label: 'Colorado Buffaloes' },
+        { value: 'oregon state', label: 'Oregon State Beavers' },
+        { value: 'washington state', label: 'Washington State Cougars' },
+        { value: 'iowa', label: 'Iowa Hawkeyes' },
+        { value: 'wisconsin', label: 'Wisconsin Badgers' },
+        { value: 'nebraska', label: 'Nebraska Cornhuskers' },
+        { value: 'minnesota', label: 'Minnesota Golden Gophers' },
+        { value: 'northwestern', label: 'Northwestern Wildcats' },
+        { value: 'purdue', label: 'Purdue Boilermakers' },
+        { value: 'illinois', label: 'Illinois Fighting Illini' },
+        { value: 'indiana', label: 'Indiana Hoosiers' },
+        { value: 'maryland', label: 'Maryland Terrapins' },
+        { value: 'rutgers', label: 'Rutgers Scarlet Knights' },
+        { value: 'michigan state', label: 'Michigan State Spartans' },
+        { value: 'virginia tech', label: 'Virginia Tech Hokies' },
+        { value: 'north carolina', label: 'North Carolina Tar Heels' },
+        { value: 'duke', label: 'Duke Blue Devils' },
+        { value: 'wake forest', label: 'Wake Forest Demon Deacons' },
+        { value: 'georgia tech', label: 'Georgia Tech Yellow Jackets' },
+        { value: 'virginia cavaliers', label: 'Virginia Cavaliers' },
+        { value: 'nc state', label: 'NC State Wolfpack' },
+        { value: 'tcu', label: 'TCU Horned Frogs' },
+        { value: 'baylor bears', label: 'Baylor Bears' },
+        { value: 'texas tech', label: 'Texas Tech Red Raiders' },
+        { value: 'oklahoma state', label: 'Oklahoma State Cowboys' },
+        { value: 'kansas jayhawks', label: 'Kansas Jayhawks' },
+        { value: 'kansas state', label: 'Kansas State Wildcats' },
+        { value: 'iowa state', label: 'Iowa State Cyclones' },
+        { value: 'west virginia', label: 'West Virginia Mountaineers' },
+        { value: 'uconn', label: 'UConn Huskies' }
+      ]
+    },
+    soccer: {
+      premier: [
+        { value: 'tottenham', label: 'Tottenham Hotspur' },
+        { value: 'arsenal', label: 'Arsenal' },
+        { value: 'chelsea', label: 'Chelsea' },
+        { value: 'manchester united', label: 'Manchester United' },
+        { value: 'manchester city', label: 'Manchester City' },
+        { value: 'liverpool', label: 'Liverpool' },
+        { value: 'newcastle', label: 'Newcastle United' },
+        { value: 'west ham', label: 'West Ham United' },
+        { value: 'brighton', label: 'Brighton & Hove Albion' },
+        { value: 'crystal palace', label: 'Crystal Palace' },
+        { value: 'fulham', label: 'Fulham' },
+        { value: 'brentford', label: 'Brentford' },
+        { value: 'everton', label: 'Everton' },
+        { value: 'nottingham forest', label: 'Nottingham Forest' },
+        { value: 'leicester', label: 'Leicester City' },
+        { value: 'southampton', label: 'Southampton' },
+        { value: 'leeds', label: 'Leeds United' },
+        { value: 'wolves', label: 'Wolverhampton Wanderers' },
+        { value: 'burnley', label: 'Burnley' },
+        { value: 'sheffield united', label: 'Sheffield United' },
+        { value: 'luton', label: 'Luton Town' }
+      ],
+      mls: [
+        { value: 'inter miami', label: 'Inter Miami CF' },
+        { value: 'atlanta united', label: 'Atlanta United FC' },
+        { value: 'austin fc', label: 'Austin FC' },
+        { value: 'charlotte fc', label: 'Charlotte FC' },
+        { value: 'chicago fire', label: 'Chicago Fire FC' },
+        { value: 'fc cincinnati', label: 'FC Cincinnati' },
+        { value: 'colorado rapids', label: 'Colorado Rapids' },
+        { value: 'columbus crew', label: 'Columbus Crew' },
+        { value: 'dc united', label: 'D.C. United' },
+        { value: 'fc dallas', label: 'FC Dallas' },
+        { value: 'houston dynamo', label: 'Houston Dynamo FC' },
+        { value: 'sporting kc', label: 'Sporting Kansas City' },
+        { value: 'la galaxy', label: 'LA Galaxy' },
+        { value: 'lafc', label: 'Los Angeles FC' },
+        { value: 'minnesota united', label: 'Minnesota United FC' },
+        { value: 'cf montreal', label: 'CF Montréal' },
+        { value: 'nashville sc', label: 'Nashville SC' },
+        { value: 'new england revolution', label: 'New England Revolution' },
+        { value: 'nycfc', label: 'New York City FC' },
+        { value: 'new york red bulls', label: 'New York Red Bulls' },
+        { value: 'orlando city', label: 'Orlando City SC' },
+        { value: 'philadelphia union', label: 'Philadelphia Union' },
+        { value: 'portland timbers', label: 'Portland Timbers' },
+        { value: 'real salt lake', label: 'Real Salt Lake' },
+        { value: 'san jose earthquakes', label: 'San Jose Earthquakes' },
+        { value: 'seattle sounders', label: 'Seattle Sounders FC' },
+        { value: 'st louis city', label: 'St. Louis City SC' },
+        { value: 'toronto fc', label: 'Toronto FC' },
+        { value: 'vancouver whitecaps', label: 'Vancouver Whitecaps FC' }
+      ]
+    }
   };
 
   // Structured data for SEO
@@ -333,7 +517,11 @@ export default function Home() {
                   </label>
                   <Select value={sport} onValueChange={(value) => {
                     setSport(value);
-                    setLeague(leagueOptions[value]?.[0]?.value || '');
+                    const newLeague = leagueOptions[value]?.[0]?.value || '';
+                    setLeague(newLeague);
+                    // Set default team for the new sport/league combination
+                    const defaultTeam = teamOptions[value]?.[newLeague]?.[0]?.value || '';
+                    setTeam(defaultTeam);
                   }}>
                     <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select sport" />
@@ -352,7 +540,12 @@ export default function Home() {
                   <label htmlFor="league" className="text-sm font-medium text-gray-700">
                     League
                   </label>
-                  <Select value={league} onValueChange={setLeague}>
+                  <Select value={league} onValueChange={(value) => {
+                    setLeague(value);
+                    // Set default team for the new league
+                    const defaultTeam = teamOptions[sport]?.[value]?.[0]?.value || '';
+                    setTeam(defaultTeam);
+                  }}>
                     <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Select league" />
                     </SelectTrigger>
@@ -371,16 +564,30 @@ export default function Home() {
                 <label htmlFor="team" className="text-sm font-medium text-gray-700">
                   Team Name
                 </label>
-                <Input
-                  id="team"
-                  type="text"
-                  value={team}
-                  onChange={(e) => setTeam(e.target.value.toLowerCase())}
-                  placeholder="e.g., heat, lakers, warriors, manchester united, real madrid"
-                  className="bg-white"
-                />
+                <div className="space-y-2">
+                  <Select value={team} onValueChange={setTeam}>
+                    <SelectTrigger className="bg-white">
+                      <SelectValue placeholder="Select a team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(teamOptions[sport]?.[league] || []).map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="team-custom"
+                    type="text"
+                    value={team}
+                    onChange={(e) => setTeam(e.target.value.toLowerCase())}
+                    placeholder="Or type a custom team name..."
+                    className="bg-white"
+                  />
+                </div>
                 <p className="text-xs text-gray-500">
-                  Enter the team name or common abbreviation. Works with teams from major leagues worldwide.
+                  Select from the dropdown or enter a custom team name. Works with teams from major leagues worldwide.
                 </p>
               </div>
 
