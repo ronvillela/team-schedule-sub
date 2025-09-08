@@ -15,13 +15,12 @@ export function useVisitorCount() {
       try {
         setLoading(true);
         
-        // First, increment the counter
-        const incrementResponse = await fetch('/api/visitor-count?increment=true');
-        if (!incrementResponse.ok) {
+        const response = await fetch('/api/visitor-count?increment=true');
+        if (!response.ok) {
           throw new Error('Failed to increment visitor count');
         }
         
-        const data = await incrementResponse.json();
+        const data = await response.json();
         if (data.success) {
           setCount(data.count);
         } else {
@@ -35,7 +34,6 @@ export function useVisitorCount() {
       }
     };
 
-    // Only track visit if we're in the browser (not during SSR)
     if (typeof window !== 'undefined') {
       trackVisit();
     }

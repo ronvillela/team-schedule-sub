@@ -13,8 +13,7 @@ async function getVisitorCount(): Promise<VisitorData> {
   try {
     const data = await fs.readFile(COUNTER_FILE, 'utf8');
     return JSON.parse(data);
-  } catch (error) {
-    // If file doesn't exist, return initial data
+  } catch {
     return {
       count: 0,
       lastUpdated: new Date().toISOString()
@@ -43,13 +42,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const increment = searchParams.get('increment') === 'true';
     
-    let data: VisitorData;
-    
-    if (increment) {
-      data = await incrementVisitorCount();
-    } else {
-      data = await getVisitorCount();
-    }
+    const data = increment ? await incrementVisitorCount() : await getVisitorCount();
     
     return NextResponse.json({
       success: true,
