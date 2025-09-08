@@ -205,8 +205,7 @@ export default function Home() {
   const leagueOptions: { [key: string]: { value: string; label: string }[] } = {
     basketball: [
       { value: 'nba', label: 'NBA' },
-      { value: 'wnba', label: 'WNBA' },
-      { value: 'euroleague', label: 'EuroLeague' }
+      { value: 'wnba', label: 'WNBA' }
     ],
     football: [
       { value: 'nfl', label: 'NFL' },
@@ -659,7 +658,7 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">🏀 Basketball</h4>
-                  <p className="text-sm text-gray-600">NBA, WNBA, EuroLeague</p>
+                  <p className="text-sm text-gray-600">NBA, WNBA</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">🏈 Football</h4>
