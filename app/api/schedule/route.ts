@@ -283,6 +283,9 @@ async function fetchTeamSchedule(team: string, sport: string, league: string) {
                 }
               }
             }
+          } else if (league === 'wnba') {
+            // For WNBA, use ESPN API only (SportsDB doesn't have reliable WNBA data)
+            scheduleData = await fetchFromESPN(team, sport, league);
           } else {
             // For college basketball, try TheSportsDB first
             scheduleData = await fetchFromSportsDB(team, sport, league);
