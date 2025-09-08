@@ -165,6 +165,20 @@ const teamTimezones: { [key: string]: string } = {
   'fc cincinnati': 'America/New_York', // FC Cincinnati
   'charlotte fc': 'America/New_York', // Charlotte FC
   'san jose earthquakes': 'America/Los_Angeles', // San Jose Earthquakes
+  
+  // WNBA Teams
+  'aces': 'America/Los_Angeles', // Las Vegas Aces
+  'liberty': 'America/New_York', // New York Liberty
+  'sun': 'America/New_York', // Connecticut Sun
+  'mystics': 'America/New_York', // Washington Mystics
+  'fever': 'America/New_York', // Indiana Fever
+  'sky': 'America/Chicago', // Chicago Sky
+  'dream': 'America/New_York', // Atlanta Dream
+  'storm': 'America/Los_Angeles', // Seattle Storm
+  'lynx': 'America/Chicago', // Minnesota Lynx
+  'mercury': 'America/Phoenix', // Phoenix Mercury
+  'sparks': 'America/Los_Angeles', // Los Angeles Sparks
+  'wings': 'America/Chicago' // Dallas Wings
 };
 
 export async function GET(request: Request) {
@@ -416,7 +430,7 @@ async function fetchFromSportsDB(team: string, sport: string, league: string) {
 async function fetchFromESPN(team: string, sport: string, league: string) {
   try {
     const espnSportMap: { [key: string]: string } = {
-      'basketball': 'basketball/nba',
+      'basketball': league === 'wnba' ? 'basketball/wnba' : 'basketball/nba',
       'football': league === 'college' ? 'football/college-football' : 'football/nfl',
       'baseball': 'baseball/mlb',
       'hockey': 'hockey/nhl',
@@ -782,6 +796,20 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'spurs': '24', 'san antonio spurs': '24', 'thunder': '25', 'oklahoma city thunder': '25',
         'blazers': '22', 'portland trail blazers': '22', 'jazz': '26', 'utah jazz': '26', 'kings': '23', 'sacramento kings': '23', 
         'clippers': '12', 'los angeles clippers': '12', 'timberwolves': '16', 'minnesota timberwolves': '16'
+      },
+      'wnba': {
+        'aces': '17', 'las vegas aces': '17',
+        'liberty': '9', 'new york liberty': '9',
+        'sun': '18', 'connecticut sun': '18',
+        'mystics': '16', 'washington mystics': '16',
+        'fever': '5', 'indiana fever': '5',
+        'sky': '19', 'chicago sky': '19',
+        'dream': '20', 'atlanta dream': '20',
+        'storm': '14', 'seattle storm': '14',
+        'lynx': '8', 'minnesota lynx': '8',
+        'mercury': '11', 'phoenix mercury': '11',
+        'sparks': '6', 'los angeles sparks': '6',
+        'wings': '3', 'dallas wings': '3'
       }
     },
     football: {
@@ -1267,7 +1295,21 @@ function capitalizeTeamName(team: string): string {
     'hatters': 'Luton Town',
     'ipswich': 'Ipswich Town',
     'ipswich town': 'Ipswich Town',
-    'tractor boys': 'Ipswich Town'
+    'tractor boys': 'Ipswich Town',
+    
+    // WNBA Teams
+    'aces': 'Las Vegas Aces',
+    'liberty': 'New York Liberty',
+    'sun': 'Connecticut Sun',
+    'mystics': 'Washington Mystics',
+    'fever': 'Indiana Fever',
+    'sky': 'Chicago Sky',
+    'dream': 'Atlanta Dream',
+    'storm': 'Seattle Storm',
+    'lynx': 'Minnesota Lynx',
+    'mercury': 'Phoenix Mercury',
+    'sparks': 'Los Angeles Sparks',
+    'wings': 'Dallas Wings'
   };
 
   // Check if we have a specific mapping

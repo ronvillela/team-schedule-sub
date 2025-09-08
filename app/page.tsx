@@ -263,6 +263,20 @@ export default function Home() {
         { value: 'kings', label: 'Sacramento Kings' },
         { value: 'clippers', label: 'Los Angeles Clippers' },
         { value: 'timberwolves', label: 'Minnesota Timberwolves' }
+      ],
+      wnba: [
+        { value: 'aces', label: 'Las Vegas Aces' },
+        { value: 'liberty', label: 'New York Liberty' },
+        { value: 'sun', label: 'Connecticut Sun' },
+        { value: 'mystics', label: 'Washington Mystics' },
+        { value: 'fever', label: 'Indiana Fever' },
+        { value: 'sky', label: 'Chicago Sky' },
+        { value: 'dream', label: 'Atlanta Dream' },
+        { value: 'storm', label: 'Seattle Storm' },
+        { value: 'lynx', label: 'Minnesota Lynx' },
+        { value: 'mercury', label: 'Phoenix Mercury' },
+        { value: 'sparks', label: 'Los Angeles Sparks' },
+        { value: 'wings', label: 'Dallas Wings' }
       ]
     },
     football: {
