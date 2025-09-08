@@ -210,7 +210,41 @@ const teamTimezones: { [key: string]: string } = {
   'rays': 'America/New_York', // Tampa Bay Rays
   'rangers': 'America/Chicago', // Texas Rangers
   'blue jays': 'America/New_York', // Toronto Blue Jays
-  'nationals': 'America/New_York' // Washington Nationals
+  'nationals': 'America/New_York', // Washington Nationals
+  
+  // NHL Teams
+  'ducks': 'America/Los_Angeles', // Anaheim Ducks
+  'coyotes': 'America/Phoenix', // Arizona Coyotes
+  'bruins': 'America/New_York', // Boston Bruins
+  'sabres': 'America/New_York', // Buffalo Sabres
+  'flames': 'America/Denver', // Calgary Flames
+  'hurricanes': 'America/New_York', // Carolina Hurricanes
+  'blackhawks': 'America/Chicago', // Chicago Blackhawks
+  'avalanche': 'America/Denver', // Colorado Avalanche
+  'blue jackets': 'America/New_York', // Columbus Blue Jackets
+  'stars': 'America/Chicago', // Dallas Stars
+  'red wings': 'America/New_York', // Detroit Red Wings
+  'oilers': 'America/Edmonton', // Edmonton Oilers
+  'panthers': 'America/New_York', // Florida Panthers
+  'kings': 'America/Los_Angeles', // Los Angeles Kings
+  'wild': 'America/Chicago', // Minnesota Wild
+  'canadiens': 'America/Toronto', // Montreal Canadiens
+  'predators': 'America/Chicago', // Nashville Predators
+  'devils': 'America/New_York', // New Jersey Devils
+  'islanders': 'America/New_York', // New York Islanders
+  'rangers': 'America/New_York', // New York Rangers
+  'senators': 'America/Toronto', // Ottawa Senators
+  'flyers': 'America/New_York', // Philadelphia Flyers
+  'penguins': 'America/New_York', // Pittsburgh Penguins
+  'sharks': 'America/Los_Angeles', // San Jose Sharks
+  'kraken': 'America/Los_Angeles', // Seattle Kraken
+  'blues': 'America/Chicago', // St. Louis Blues
+  'lightning': 'America/New_York', // Tampa Bay Lightning
+  'maple leafs': 'America/Toronto', // Toronto Maple Leafs
+  'canucks': 'America/Vancouver', // Vancouver Canucks
+  'golden knights': 'America/Los_Angeles', // Vegas Golden Knights
+  'capitals': 'America/New_York', // Washington Capitals
+  'jets': 'America/Winnipeg' // Winnipeg Jets
 };
 
 export async function GET(request: Request) {
@@ -1015,6 +1049,42 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'rangers': '13', 'texas rangers': '13',
         'blue jays': '14', 'toronto blue jays': '14',
         'nationals': '20', 'washington nationals': '20'
+      }
+    },
+    hockey: {
+      'nhl': {
+        'ducks': '25', 'anaheim ducks': '25',
+        'coyotes': '53', 'arizona coyotes': '53', 'phoenix coyotes': '53',
+        'bruins': '1', 'boston bruins': '1',
+        'sabres': '2', 'buffalo sabres': '2',
+        'flames': '20', 'calgary flames': '20',
+        'hurricanes': '7', 'carolina hurricanes': '7',
+        'blackhawks': '4', 'chicago blackhawks': '4',
+        'avalanche': '21', 'colorado avalanche': '21',
+        'blue jackets': '29', 'columbus blue jackets': '29',
+        'stars': '25', 'dallas stars': '25',
+        'red wings': '17', 'detroit red wings': '17',
+        'oilers': '22', 'edmonton oilers': '22',
+        'panthers': '26', 'florida panthers': '26',
+        'kings': '26', 'los angeles kings': '26',
+        'wild': '30', 'minnesota wild': '30',
+        'canadiens': '8', 'montreal canadiens': '8', 'montreal habs': '8',
+        'predators': '18', 'nashville predators': '18',
+        'devils': '1', 'new jersey devils': '1',
+        'islanders': '2', 'new york islanders': '2',
+        'rangers': '3', 'new york rangers': '3',
+        'senators': '9', 'ottawa senators': '9',
+        'flyers': '4', 'philadelphia flyers': '4',
+        'penguins': '5', 'pittsburgh penguins': '5',
+        'sharks': '28', 'san jose sharks': '28',
+        'kraken': '28', 'seattle kraken': '28',
+        'blues': '19', 'st louis blues': '19',
+        'lightning': '14', 'tampa bay lightning': '14',
+        'maple leafs': '10', 'toronto maple leafs': '10', 'toronto leafs': '10',
+        'canucks': '23', 'vancouver canucks': '23',
+        'golden knights': '54', 'vegas golden knights': '54', 'vegas knights': '54',
+        'capitals': '15', 'washington capitals': '15',
+        'jets': '52', 'winnipeg jets': '52'
       }
     }
   };

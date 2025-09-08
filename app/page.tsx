@@ -458,6 +458,42 @@ export default function Home() {
         { value: 'toronto fc', label: 'Toronto FC' },
         { value: 'vancouver whitecaps', label: 'Vancouver Whitecaps FC' }
       ]
+    },
+    hockey: {
+      nhl: [
+        { value: 'ducks', label: 'Anaheim Ducks' },
+        { value: 'coyotes', label: 'Arizona Coyotes' },
+        { value: 'bruins', label: 'Boston Bruins' },
+        { value: 'sabres', label: 'Buffalo Sabres' },
+        { value: 'flames', label: 'Calgary Flames' },
+        { value: 'hurricanes', label: 'Carolina Hurricanes' },
+        { value: 'blackhawks', label: 'Chicago Blackhawks' },
+        { value: 'avalanche', label: 'Colorado Avalanche' },
+        { value: 'blue jackets', label: 'Columbus Blue Jackets' },
+        { value: 'stars', label: 'Dallas Stars' },
+        { value: 'red wings', label: 'Detroit Red Wings' },
+        { value: 'oilers', label: 'Edmonton Oilers' },
+        { value: 'panthers', label: 'Florida Panthers' },
+        { value: 'kings', label: 'Los Angeles Kings' },
+        { value: 'wild', label: 'Minnesota Wild' },
+        { value: 'canadiens', label: 'Montreal Canadiens' },
+        { value: 'predators', label: 'Nashville Predators' },
+        { value: 'devils', label: 'New Jersey Devils' },
+        { value: 'islanders', label: 'New York Islanders' },
+        { value: 'rangers', label: 'New York Rangers' },
+        { value: 'senators', label: 'Ottawa Senators' },
+        { value: 'flyers', label: 'Philadelphia Flyers' },
+        { value: 'penguins', label: 'Pittsburgh Penguins' },
+        { value: 'sharks', label: 'San Jose Sharks' },
+        { value: 'kraken', label: 'Seattle Kraken' },
+        { value: 'blues', label: 'St. Louis Blues' },
+        { value: 'lightning', label: 'Tampa Bay Lightning' },
+        { value: 'maple leafs', label: 'Toronto Maple Leafs' },
+        { value: 'canucks', label: 'Vancouver Canucks' },
+        { value: 'golden knights', label: 'Vegas Golden Knights' },
+        { value: 'capitals', label: 'Washington Capitals' },
+        { value: 'jets', label: 'Winnipeg Jets' }
+      ]
     }
   };
 
