@@ -837,7 +837,7 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
       'college': {
         'miami': '2390', 'university of miami': '2390', 'miami hurricanes': '2390',
         'alabama': '333', 'alabama crimson tide': '333',
-        'georgia': '333', 'georgia bulldogs': '333',
+        'georgia': '61', 'georgia bulldogs': '61',
         'ohio state': '194', 'ohio state buckeyes': '194',
         'clemson': '228', 'clemson tigers': '228',
         'notre dame': '87', 'notre dame fighting irish': '87',
@@ -881,7 +881,18 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'kansas': '2305', 'kansas jayhawks': '2305',
         'kansas state': '2306', 'kansas state wildcats': '2306',
         'iowa state': '66', 'iowa state cyclones': '66',
-        'west virginia': '277', 'west virginia mountaineers': '277'
+        'west virginia': '277', 'west virginia mountaineers': '277',
+        'rutgers': '164', 'rutgers scarlet knights': '164', 'university of rutgers': '164',
+        'wisconsin': '275', 'wisconsin badgers': '275',
+        'iowa': '2294', 'iowa hawkeyes': '2294',
+        'nebraska': '158', 'nebraska cornhuskers': '158',
+        'michigan state': '127', 'michigan state spartans': '127',
+        'indiana': '84', 'indiana hoosiers': '84',
+        'purdue': '2509', 'purdue boilermakers': '2509',
+        'northwestern': '77', 'northwestern wildcats': '77',
+        'illinois': '356', 'illinois fighting illini': '356',
+        'minnesota': '135', 'minnesota golden gophers': '135',
+        'maryland': '120', 'maryland terrapins': '120'
       }
     },
     soccer: {
