@@ -255,7 +255,7 @@ export default function Home() {
         { value: 'sixers', label: 'Philadelphia 76ers' },
         { value: 'suns', label: 'Phoenix Suns' },
         { value: 'blazers', label: 'Portland Trail Blazers' },
-        { value: 'kings', label: 'Sacramento Kings' },
+        { value: 'sacramento kings', label: 'Sacramento Kings' },
         { value: 'spurs', label: 'San Antonio Spurs' },
         { value: 'raptors', label: 'Toronto Raptors' },
         { value: 'jazz', label: 'Utah Jazz' },
@@ -278,11 +278,11 @@ export default function Home() {
     },
     football: {
       nfl: [
-        { value: 'cardinals', label: 'Arizona Cardinals' },
+        { value: 'az cardinals', label: 'Arizona Cardinals' },
         { value: 'falcons', label: 'Atlanta Falcons' },
         { value: 'ravens', label: 'Baltimore Ravens' },
         { value: 'bills', label: 'Buffalo Bills' },
-        { value: 'panthers', label: 'Carolina Panthers' },
+        { value: 'carolina panthers', label: 'Carolina Panthers' },
         { value: 'bears', label: 'Chicago Bears' },
         { value: 'bengals', label: 'Cincinnati Bengals' },
         { value: 'browns', label: 'Cleveland Browns' },
@@ -301,8 +301,8 @@ export default function Home() {
         { value: 'vikings', label: 'Minnesota Vikings' },
         { value: 'patriots', label: 'New England Patriots' },
         { value: 'saints', label: 'New Orleans Saints' },
-        { value: 'giants', label: 'New York Giants' },
-        { value: 'jets', label: 'New York Jets' },
+        { value: 'ny giants', label: 'New York Giants' },
+        { value: 'ny jets', label: 'New York Jets' },
         { value: 'eagles', label: 'Philadelphia Eagles' },
         { value: 'steelers', label: 'Pittsburgh Steelers' },
         { value: '49ers', label: 'San Francisco 49ers' },
@@ -396,7 +396,7 @@ export default function Home() {
         { value: 'mariners', label: 'Seattle Mariners' },
         { value: 'cardinals', label: 'St. Louis Cardinals' },
         { value: 'rays', label: 'Tampa Bay Rays' },
-        { value: 'rangers', label: 'Texas Rangers' },
+        { value: 'texas rangers', label: 'Texas Rangers' },
         { value: 'blue jays', label: 'Toronto Blue Jays' },
         { value: 'nationals', label: 'Washington Nationals' }
       ]

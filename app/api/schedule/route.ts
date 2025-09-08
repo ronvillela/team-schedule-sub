@@ -6,7 +6,7 @@ import { sendErrorNotification } from '@/lib/email';
 // Team timezone mapping
 const teamTimezones: { [key: string]: string } = {
   // NBA Teams
-  'kings': 'America/Los_Angeles', // Sacramento Kings
+  'sacramento kings': 'America/Los_Angeles', // Sacramento Kings
   'lakers': 'America/Los_Angeles', // Los Angeles Lakers
   'clippers': 'America/Los_Angeles', // Los Angeles Clippers
   'warriors': 'America/Los_Angeles', // Golden State Warriors
@@ -43,7 +43,7 @@ const teamTimezones: { [key: string]: string } = {
   'chargers': 'America/Los_Angeles', // Los Angeles Chargers
   '49ers': 'America/Los_Angeles', // San Francisco 49ers
   'seahawks': 'America/Los_Angeles', // Seattle Seahawks
-  'cardinals': 'America/Phoenix', // Arizona Cardinals
+  'az cardinals': 'America/Phoenix', // Arizona Cardinals
   'broncos': 'America/Denver', // Denver Broncos
   'chiefs': 'America/Chicago', // Kansas City Chiefs
   'cowboys': 'America/Chicago', // Dallas Cowboys
@@ -52,14 +52,14 @@ const teamTimezones: { [key: string]: string } = {
   'jaguars': 'America/New_York', // Jacksonville Jaguars
   'titans': 'America/Chicago', // Tennessee Titans
   'falcons': 'America/New_York', // Atlanta Falcons
-  'panthers': 'America/New_York', // Carolina Panthers
+  'carolina panthers': 'America/New_York', // Carolina Panthers
   'saints': 'America/Chicago', // New Orleans Saints
   'buccaneers': 'America/New_York', // Tampa Bay Buccaneers
   'dolphins': 'America/New_York', // Miami Dolphins
   'patriots': 'America/New_York', // New England Patriots
   'bills': 'America/New_York', // Buffalo Bills
-  'jets': 'America/New_York', // New York Jets
-  'giants': 'America/New_York', // New York Giants
+  'ny jets': 'America/New_York', // New York Jets
+  'ny giants': 'America/New_York', // New York Giants
   'eagles': 'America/New_York', // Philadelphia Eagles
   'commanders': 'America/New_York', // Washington Commanders
   'ravens': 'America/New_York', // Baltimore Ravens
@@ -208,7 +208,7 @@ const teamTimezones: { [key: string]: string } = {
   'mariners': 'America/Los_Angeles', // Seattle Mariners
   'cardinals': 'America/Chicago', // St. Louis Cardinals
   'rays': 'America/New_York', // Tampa Bay Rays
-  'rangers': 'America/Chicago', // Texas Rangers
+  'texas rangers': 'America/Chicago', // Texas Rangers
   'blue jays': 'America/New_York', // Toronto Blue Jays
   'nationals': 'America/New_York', // Washington Nationals
   
@@ -863,7 +863,7 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'wizards': '27', 'washington wizards': '27', 'mavericks': '6', 'dallas mavericks': '6',
         'rockets': '10', 'houston rockets': '10', 'grizzlies': '29', 'memphis grizzlies': '29', 'pelicans': '3', 'new orleans pelicans': '3', 
         'spurs': '24', 'san antonio spurs': '24', 'thunder': '25', 'oklahoma city thunder': '25',
-        'blazers': '22', 'portland trail blazers': '22', 'jazz': '26', 'utah jazz': '26', 'kings': '23', 'sacramento kings': '23', 
+        'blazers': '22', 'portland trail blazers': '22', 'jazz': '26', 'utah jazz': '26', 'sacramento kings': '23', 
         'clippers': '12', 'los angeles clippers': '12', 'timberwolves': '16', 'minnesota timberwolves': '16'
       },
       'wnba': {
@@ -884,21 +884,21 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
     football: {
       'nfl': {
         'patriots': '17', 'new england patriots': '17', 'bills': '2', 'buffalo bills': '2',
-        'jets': '20', 'new york jets': '20', 'dolphins': '15', 'miami dolphins': '15',
+        'ny jets': '20', 'new york jets': '20', 'dolphins': '15', 'miami dolphins': '15',
         'steelers': '23', 'pittsburgh steelers': '23', 'ravens': '33', 'baltimore ravens': '33',
         'browns': '5', 'cleveland browns': '5', 'bengals': '4', 'cincinnati bengals': '4',
         'titans': '10', 'tennessee titans': '10', 'colts': '11', 'indianapolis colts': '11',
         'texans': '34', 'houston texans': '34', 'jaguars': '30', 'jacksonville jaguars': '30',
         'chiefs': '12', 'kansas city chiefs': '12', 'chargers': '24', 'los angeles chargers': '24',
         'raiders': '13', 'las vegas raiders': '13', 'broncos': '7', 'denver broncos': '7',
-        'cowboys': '6', 'dallas cowboys': '6', 'giants': '19', 'new york giants': '19',
+        'cowboys': '6', 'dallas cowboys': '6', 'ny giants': '19', 'new york giants': '19',
         'eagles': '21', 'philadelphia eagles': '21', 'commanders': '28', 'washington commanders': '28',
         'packers': '9', 'green bay packers': '9', 'bears': '3', 'chicago bears': '3',
         'lions': '8', 'detroit lions': '8', 'vikings': '16', 'minnesota vikings': '16',
         'saints': '18', 'new orleans saints': '18', 'falcons': '1', 'atlanta falcons': '1',
-        'panthers': '29', 'carolina panthers': '29', 'buccaneers': '27', 'tampa bay buccaneers': '27',
+        'carolina panthers': '29', 'buccaneers': '27', 'tampa bay buccaneers': '27',
         '49ers': '25', 'san francisco 49ers': '25', 'seahawks': '26', 'seattle seahawks': '26',
-        'rams': '14', 'los angeles rams': '14', 'cardinals': '22', 'arizona cardinals': '22'
+        'rams': '14', 'los angeles rams': '14', 'az cardinals': '22', 'arizona cardinals': '22'
       },
       'college': {
         'miami': '2390', 'university of miami': '2390', 'miami hurricanes': '2390',
@@ -1046,7 +1046,7 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'mariners': '12', 'seattle mariners': '12',
         'cardinals': '24', 'st louis cardinals': '24',
         'rays': '30', 'tampa bay rays': '30', 'tampa bay devil rays': '30',
-        'rangers': '13', 'texas rangers': '13',
+        'texas rangers': '13',
         'blue jays': '14', 'toronto blue jays': '14',
         'nationals': '20', 'washington nationals': '20'
       }
