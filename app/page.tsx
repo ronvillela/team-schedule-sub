@@ -519,13 +519,8 @@ export default function Home() {
             Patriots, Cowboys, and hundreds of other teams worldwide.</p>
           </div>
           
-          {/* Visitor Counter */}
-          <div className="mb-6">
-            <VisitorCounter />
-          </div>
-          
-          {/* Like Button */}
-          <div className="flex items-center justify-center gap-2">
+          {/* Like Button and Visitor Counter */}
+          <div className="flex items-center justify-center gap-4">
             <Button
               onClick={handleLike}
               disabled={likesLoading}
@@ -548,6 +543,8 @@ export default function Home() {
                 {totalLikes === 1 ? 'like' : 'likes'}
               </span>
             </Button>
+            
+            <VisitorCounter />
           </div>
         </header>
 
