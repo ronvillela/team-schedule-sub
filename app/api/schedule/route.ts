@@ -433,8 +433,8 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       throw new Error(`Team "${team}" not found in ESPN ${sport} data`);
     }
     
-    // Try to get comprehensive schedule data without restrictive date filters
-    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule`;
+    // Try to get the 2025-26 regular season schedule first
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?seasontype=2`;
     
     const response = await fetch(url, {
       headers: {
@@ -473,38 +473,36 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       sampleEvent: transformedData[0]
     });
     
-    // If we only got preseason games and the user wants regular season, try to get current season's regular season
-    // Check if all events are preseason by looking at the original ESPN data
-    const allPreseason = events.length > 0 && events.every((event: any) => 
-      event.seasonType && event.seasonType.name && event.seasonType.name.toLowerCase() === 'preseason');
-    
-    if (transformedData.length > 0 && allPreseason) {
-      console.log(`Only preseason games found for ${team}, trying current season regular season...`);
+    // If we got no events or only preseason games, try to get comprehensive schedule data
+    if (transformedData.length === 0 || (events.length > 0 && events.every((event: any) => 
+      event.seasonType && event.seasonType.name && event.seasonType.name.toLowerCase() === 'preseason'))) {
       
-      // Try to get current season's regular season games
-      const currentSeasonUrl = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?seasontype=2`;
+      console.log(`No regular season games found for ${team}, trying comprehensive schedule...`);
+      
+      // Try to get all games (preseason + regular season + playoffs)
+      const comprehensiveUrl = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?seasontype=1,2,3`;
       try {
-        const currentSeasonResponse = await fetch(currentSeasonUrl, {
+        const comprehensiveResponse = await fetch(comprehensiveUrl, {
           headers: { 'User-Agent': 'TeamScheduleApp/1.0' },
         });
         
-        if (currentSeasonResponse.ok) {
-          const currentSeasonData = await currentSeasonResponse.json();
-          let currentSeasonEvents = [];
-          if (currentSeasonData.events) {
-            currentSeasonEvents = currentSeasonData.events;
-          } else if (currentSeasonData.schedule && currentSeasonData.schedule.events) {
-            currentSeasonEvents = currentSeasonData.schedule.events;
+        if (comprehensiveResponse.ok) {
+          const comprehensiveData = await comprehensiveResponse.json();
+          let comprehensiveEvents = [];
+          if (comprehensiveData.events) {
+            comprehensiveEvents = comprehensiveData.events;
+          } else if (comprehensiveData.schedule && comprehensiveData.schedule.events) {
+            comprehensiveEvents = comprehensiveData.schedule.events;
           }
           
-          if (currentSeasonEvents.length > 0) {
-            const currentSeasonTransformed = transformESPNData(currentSeasonEvents, team);
-            console.log(`Found ${currentSeasonTransformed.length} current season regular season games for ${team}`);
-            return currentSeasonTransformed;
+          if (comprehensiveEvents.length > 0) {
+            const comprehensiveTransformed = transformESPNData(comprehensiveEvents, team);
+            console.log(`Found ${comprehensiveTransformed.length} comprehensive games for ${team}`);
+            return comprehensiveTransformed;
           }
         }
       } catch (error) {
-        console.log(`Failed to get current season data for ${team}:`, error);
+        console.log(`Failed to get comprehensive data for ${team}:`, error);
       }
     }
     
