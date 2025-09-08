@@ -218,12 +218,7 @@ export default function Home() {
       { value: 'nhl', label: 'NHL' }
     ],
     soccer: [
-      { value: 'mls', label: 'MLS' },
-      { value: 'premier', label: 'Premier League' },
-      { value: 'la-liga', label: 'La Liga' },
-      { value: 'bundesliga', label: 'Bundesliga' },
-      { value: 'serie-a', label: 'Serie A' },
-      { value: 'ligue-1', label: 'Ligue 1' }
+      { value: 'mls', label: 'MLS' }
     ]
   };
 
@@ -402,29 +397,6 @@ export default function Home() {
       ]
     },
     soccer: {
-      premier: [
-        { value: 'arsenal', label: 'Arsenal' },
-        { value: 'brentford', label: 'Brentford' },
-        { value: 'brighton', label: 'Brighton & Hove Albion' },
-        { value: 'burnley', label: 'Burnley' },
-        { value: 'chelsea', label: 'Chelsea' },
-        { value: 'crystal palace', label: 'Crystal Palace' },
-        { value: 'everton', label: 'Everton' },
-        { value: 'fulham', label: 'Fulham' },
-        { value: 'leeds', label: 'Leeds United' },
-        { value: 'leicester', label: 'Leicester City' },
-        { value: 'liverpool', label: 'Liverpool' },
-        { value: 'luton', label: 'Luton Town' },
-        { value: 'manchester city', label: 'Manchester City' },
-        { value: 'manchester united', label: 'Manchester United' },
-        { value: 'newcastle', label: 'Newcastle United' },
-        { value: 'nottingham forest', label: 'Nottingham Forest' },
-        { value: 'sheffield united', label: 'Sheffield United' },
-        { value: 'southampton', label: 'Southampton' },
-        { value: 'tottenham', label: 'Tottenham Hotspur' },
-        { value: 'west ham', label: 'West Ham United' },
-        { value: 'wolves', label: 'Wolverhampton Wanderers' }
-      ],
       mls: [
         { value: 'atlanta united', label: 'Atlanta United FC' },
         { value: 'austin fc', label: 'Austin FC' },
@@ -742,7 +714,7 @@ export default function Home() {
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">⚽ Soccer</h4>
-                  <p className="text-sm text-gray-600">Premier League, La Liga, Bundesliga, Serie A, MLS</p>
+                  <p className="text-sm text-gray-600">MLS</p>
                 </div>
               </div>
               
