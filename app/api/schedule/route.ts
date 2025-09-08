@@ -433,8 +433,8 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       throw new Error(`Team "${team}" not found in ESPN ${sport} data`);
     }
     
-    // Add parameters to get more comprehensive schedule data
-    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?dates=20240101-20261231&seasontype=1,2,3`;
+    // Try to get comprehensive schedule data without restrictive date filters
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule`;
     
     const response = await fetch(url, {
       headers: {
@@ -447,6 +447,14 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
     }
     
     const data = await response.json();
+    console.log(`ESPN API response for ${team} (${sport}/${league}):`, {
+      url,
+      teamId,
+      eventsCount: data.events?.length || 0,
+      scheduleEventsCount: data.schedule?.events?.length || 0,
+      hasEvents: !!data.events,
+      hasSchedule: !!data.schedule
+    });
     
     // ESPN API returns events in different structures depending on the endpoint
     let events = [];
@@ -458,7 +466,49 @@ async function fetchFromESPN(team: string, sport: string, league: string) {
       events = data;
     }
     
-    return transformESPNData(events, team);
+    const transformedData = transformESPNData(events, team);
+    console.log(`Transformed ESPN data for ${team}:`, {
+      originalEventsCount: events.length,
+      transformedEventsCount: transformedData.length,
+      sampleEvent: transformedData[0]
+    });
+    
+    // If we only got preseason games and the user wants regular season, try to get current season's regular season
+    // Check if all events are preseason by looking at the original ESPN data
+    const allPreseason = events.length > 0 && events.every((event: any) => 
+      event.seasonType && event.seasonType.name && event.seasonType.name.toLowerCase() === 'preseason');
+    
+    if (transformedData.length > 0 && allPreseason) {
+      console.log(`Only preseason games found for ${team}, trying current season regular season...`);
+      
+      // Try to get current season's regular season games
+      const currentSeasonUrl = `https://site.api.espn.com/apis/site/v2/sports/${espnSport}/teams/${teamId}/schedule?seasontype=2`;
+      try {
+        const currentSeasonResponse = await fetch(currentSeasonUrl, {
+          headers: { 'User-Agent': 'TeamScheduleApp/1.0' },
+        });
+        
+        if (currentSeasonResponse.ok) {
+          const currentSeasonData = await currentSeasonResponse.json();
+          let currentSeasonEvents = [];
+          if (currentSeasonData.events) {
+            currentSeasonEvents = currentSeasonData.events;
+          } else if (currentSeasonData.schedule && currentSeasonData.schedule.events) {
+            currentSeasonEvents = currentSeasonData.schedule.events;
+          }
+          
+          if (currentSeasonEvents.length > 0) {
+            const currentSeasonTransformed = transformESPNData(currentSeasonEvents, team);
+            console.log(`Found ${currentSeasonTransformed.length} current season regular season games for ${team}`);
+            return currentSeasonTransformed;
+          }
+        }
+      } catch (error) {
+        console.log(`Failed to get current season data for ${team}:`, error);
+      }
+    }
+    
+    return transformedData;
   } catch (error) {
     console.error('ESPN API error:', error);
     return null;
