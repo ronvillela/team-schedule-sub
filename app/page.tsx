@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Copy, Download, ExternalLink, Globe, Bug, MessageSquare, Heart } from 'lucide-react';
+import { VisitorCounter } from '@/components/visitor-counter';
 
 export default function Home() {
   const [team, setTeam] = useState('heat');
@@ -516,6 +517,11 @@ export default function Home() {
             <p>Get free sports calendar subscriptions for NBA, NFL, MLB, NHL, college football, and more. 
             Download team schedules for Miami Heat, Miami Dolphins, Miami Hurricanes, Lakers, Warriors, 
             Patriots, Cowboys, and hundreds of other teams worldwide.</p>
+          </div>
+          
+          {/* Visitor Counter */}
+          <div className="mb-6">
+            <VisitorCounter />
           </div>
           
           {/* Like Button */}
