@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
             <h1 className="text-4xl font-bold text-gray-900">Analytics Dashboard</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Track usage and performance of your Universal Sports Calendar app
+            Track usage and performance of your Sports Team Calendar Sync app
           </p>
           {lastUpdated && (
             <p className="text-sm text-gray-500 mt-2">

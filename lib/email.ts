@@ -25,10 +25,10 @@ export async function sendFeedbackEmail(data: EmailData) {
     // Determine email subject based on type
     const getSubject = (type: string) => {
       switch (type) {
-        case 'bug': return '🐛 Bug Report - Universal Sports Calendar';
-        case 'suggestion': return '💡 Suggestion - Universal Sports Calendar';
-        case 'error': return '❌ Error Report - Universal Sports Calendar';
-        default: return '💬 Feedback - Universal Sports Calendar';
+        case 'bug': return '🐛 Bug Report - Sports Team Calendar Sync';
+        case 'suggestion': return '💡 Suggestion - Sports Team Calendar Sync';
+        case 'error': return '❌ Error Report - Sports Team Calendar Sync';
+        default: return '💬 Feedback - Sports Team Calendar Sync';
       }
     };
 
@@ -36,7 +36,7 @@ export async function sendFeedbackEmail(data: EmailData) {
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-          <h1 style="color: white; margin: 0; text-align: center;">Universal Sports Calendar</h1>
+          <h1 style="color: white; margin: 0; text-align: center;">Sports Team Calendar Sync</h1>
           <p style="color: white; margin: 10px 0 0 0; text-align: center; opacity: 0.9;">User Feedback Notification</p>
         </div>
         
@@ -91,7 +91,7 @@ export async function sendFeedbackEmail(data: EmailData) {
         
         <div style="text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px;">
           <p style="margin: 0; color: #666; font-size: 14px;">
-            This feedback was submitted through the Universal Sports Calendar app.
+            This feedback was submitted through the Sports Team Calendar Sync app.
           </p>
           <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">
             <a href="https://team-schedule-sub.vercel.app" style="color: #2196f3;">View App</a> | 
@@ -133,7 +133,7 @@ export async function sendErrorNotification(error: any, context?: any) {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: #ffebee; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #f44336;">
           <h1 style="color: #d32f2f; margin: 0;">🚨 Error Alert</h1>
-          <p style="color: #666; margin: 10px 0 0 0;">Universal Sports Calendar</p>
+          <p style="color: #666; margin: 10px 0 0 0;">Sports Team Calendar Sync</p>
         </div>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
@@ -166,7 +166,7 @@ export async function sendErrorNotification(error: any, context?: any) {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_RECIPIENT || process.env.EMAIL_USER,
-      subject: '🚨 Error Alert - Universal Sports Calendar',
+      subject: '🚨 Error Alert - Sports Team Calendar Sync',
       html: htmlContent,
     };
 

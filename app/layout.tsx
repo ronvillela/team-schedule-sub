@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Universal Sports Calendar - Any Team, Any Sport',
-    template: '%s | Universal Sports Calendar'
+    default: 'Sports Team Calendar Sync - Any Team, Any Sport',
+    template: '%s | Sports Team Calendar Sync'
   },
   description: 'Subscribe to any sports team schedule from any league worldwide. Get NBA, NFL, MLB, NHL, college football schedules. Compatible with Apple Calendar, Google Calendar, Outlook. Free sports calendar subscriptions.',
   keywords: [
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     'team schedule subscription',
     'sports calendar ics'
   ],
-  authors: [{ name: 'Universal Sports Calendar' }],
-  creator: 'Universal Sports Calendar',
-  publisher: 'Universal Sports Calendar',
+  authors: [{ name: 'Sports Team Calendar Sync' }],
+  creator: 'Sports Team Calendar Sync',
+  publisher: 'Sports Team Calendar Sync',
   formatDetection: {
     email: false,
     address: false,
@@ -45,16 +45,16 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Universal Sports Calendar - Any Team, Any Sport',
+    title: 'Sports Team Calendar Sync - Any Team, Any Sport',
     description: 'Subscribe to any sports team schedule from any league worldwide. Get NBA, NFL, MLB, NHL, college football schedules. Compatible with Apple Calendar, Google Calendar, Outlook.',
     url: 'https://team-schedule-sub.vercel.app',
-    siteName: 'Universal Sports Calendar',
+    siteName: 'Sports Team Calendar Sync',
     images: [
       {
         url: 'https://team-schedule-sub.vercel.app/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Universal Sports Calendar - Subscribe to any team schedule',
+        alt: 'Sports Team Calendar Sync - Subscribe to any team schedule',
       },
     ],
     locale: 'en_US',
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Universal Sports Calendar - Any Team, Any Sport',
+    title: 'Sports Team Calendar Sync - Any Team, Any Sport',
     description: 'Subscribe to any sports team schedule from any league worldwide. Compatible with Apple Calendar, Google Calendar, and more.',
     images: ['https://team-schedule-sub.vercel.app/og-image.png'],
     creator: '@universalsportscal',

@@ -499,7 +499,7 @@ export default function Home() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Universal Sports Calendar",
+    "name": "Sports Team Calendar Sync",
     "description": "Subscribe to any sports team schedule from any league worldwide. Compatible with Apple Calendar, Google Calendar, and more.",
     "url": "https://team-schedule-sub.vercel.app",
     "applicationCategory": "SportsApplication",
@@ -534,7 +534,7 @@ export default function Home() {
         <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Globe className="h-8 w-8 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Universal Sports Calendar</h1>
+            <h1 className="text-4xl font-bold text-gray-900">Sports Team Calendar Sync</h1>
           </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
             Subscribe to any team's schedule from any sport worldwide. 

@@ -1,8 +1,8 @@
-# 🏀 Universal Sports Calendar
+# 🏀 Sports Team Calendar Sync
 
 A modern web application that allows users to subscribe to any sports team's schedule from any league worldwide. Generate calendar subscription URLs that work with Apple Calendar, Google Calendar, Outlook, and more.
 
-![Universal Sports Calendar](https://img.shields.io/badge/Next.js-13.5.1-black?style=for-the-badge&logo=next.js)
+![Sports Team Calendar Sync](https://img.shields.io/badge/Next.js-13.5.1-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.3-38B2AC?style=for-the-badge&logo=tailwind-css)
 
