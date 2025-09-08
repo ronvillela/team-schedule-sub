@@ -178,7 +178,39 @@ const teamTimezones: { [key: string]: string } = {
   'lynx': 'America/Chicago', // Minnesota Lynx
   'mercury': 'America/Phoenix', // Phoenix Mercury
   'sparks': 'America/Los_Angeles', // Los Angeles Sparks
-  'wings': 'America/Chicago' // Dallas Wings
+  'wings': 'America/Chicago', // Dallas Wings
+  
+  // MLB Teams
+  'diamondbacks': 'America/Phoenix', // Arizona Diamondbacks
+  'braves': 'America/New_York', // Atlanta Braves
+  'orioles': 'America/New_York', // Baltimore Orioles
+  'red sox': 'America/New_York', // Boston Red Sox
+  'cubs': 'America/Chicago', // Chicago Cubs
+  'white sox': 'America/Chicago', // Chicago White Sox
+  'reds': 'America/New_York', // Cincinnati Reds
+  'guardians': 'America/New_York', // Cleveland Guardians
+  'rockies': 'America/Denver', // Colorado Rockies
+  'tigers': 'America/New_York', // Detroit Tigers
+  'astros': 'America/Chicago', // Houston Astros
+  'royals': 'America/Chicago', // Kansas City Royals
+  'angels': 'America/Los_Angeles', // Los Angeles Angels
+  'dodgers': 'America/Los_Angeles', // Los Angeles Dodgers
+  'marlins': 'America/New_York', // Miami Marlins
+  'brewers': 'America/Chicago', // Milwaukee Brewers
+  'twins': 'America/Chicago', // Minnesota Twins
+  'mets': 'America/New_York', // New York Mets
+  'yankees': 'America/New_York', // New York Yankees
+  'athletics': 'America/Los_Angeles', // Oakland Athletics
+  'phillies': 'America/New_York', // Philadelphia Phillies
+  'pirates': 'America/New_York', // Pittsburgh Pirates
+  'padres': 'America/Los_Angeles', // San Diego Padres
+  'giants': 'America/Los_Angeles', // San Francisco Giants
+  'mariners': 'America/Los_Angeles', // Seattle Mariners
+  'cardinals': 'America/Chicago', // St. Louis Cardinals
+  'rays': 'America/New_York', // Tampa Bay Rays
+  'rangers': 'America/Chicago', // Texas Rangers
+  'blue jays': 'America/New_York', // Toronto Blue Jays
+  'nationals': 'America/New_York' // Washington Nationals
 };
 
 export async function GET(request: Request) {
@@ -949,6 +981,40 @@ function getESPNTeamId(teamName: string, sport: string, league: string): string 
         'cincinnati': '4644', 'fc cincinnati': '4644',
         'charlotte fc': '4645', 'charlotte': '4645',
         'st louis city': '4646', 'st louis': '4646'
+      }
+    },
+    baseball: {
+      'mlb': {
+        'diamondbacks': '29', 'arizona diamondbacks': '29',
+        'braves': '15', 'atlanta braves': '15',
+        'orioles': '1', 'baltimore orioles': '1',
+        'red sox': '2', 'boston red sox': '2',
+        'cubs': '16', 'chicago cubs': '16',
+        'white sox': '4', 'chicago white sox': '4',
+        'reds': '17', 'cincinnati reds': '17',
+        'guardians': '5', 'cleveland guardians': '5', 'cleveland indians': '5',
+        'rockies': '27', 'colorado rockies': '27',
+        'tigers': '6', 'detroit tigers': '6',
+        'astros': '18', 'houston astros': '18',
+        'royals': '7', 'kansas city royals': '7',
+        'angels': '3', 'los angeles angels': '3', 'anaheim angels': '3',
+        'dodgers': '19', 'los angeles dodgers': '19',
+        'marlins': '28', 'miami marlins': '28', 'florida marlins': '28',
+        'brewers': '8', 'milwaukee brewers': '8',
+        'twins': '9', 'minnesota twins': '9',
+        'mets': '21', 'new york mets': '21',
+        'yankees': '10', 'new york yankees': '10',
+        'athletics': '11', 'oakland athletics': '11', 'oakland a\'s': '11',
+        'phillies': '22', 'philadelphia phillies': '22',
+        'pirates': '23', 'pittsburgh pirates': '23',
+        'padres': '25', 'san diego padres': '25',
+        'giants': '26', 'san francisco giants': '26',
+        'mariners': '12', 'seattle mariners': '12',
+        'cardinals': '24', 'st louis cardinals': '24',
+        'rays': '30', 'tampa bay rays': '30', 'tampa bay devil rays': '30',
+        'rangers': '13', 'texas rangers': '13',
+        'blue jays': '14', 'toronto blue jays': '14',
+        'nationals': '20', 'washington nationals': '20'
       }
     }
   };
