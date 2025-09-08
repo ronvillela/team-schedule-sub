@@ -212,12 +212,10 @@ export default function Home() {
       { value: 'college', label: 'College Football' }
     ],
     baseball: [
-      { value: 'mlb', label: 'MLB' },
-      { value: 'milb', label: 'Minor League' }
+      { value: 'mlb', label: 'MLB' }
     ],
     hockey: [
-      { value: 'nhl', label: 'NHL' },
-      { value: 'ahl', label: 'AHL' }
+      { value: 'nhl', label: 'NHL' }
     ],
     soccer: [
       { value: 'mls', label: 'MLS' },
@@ -736,11 +734,11 @@ export default function Home() {
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">⚾ Baseball</h4>
-                  <p className="text-sm text-gray-600">MLB, Minor League</p>
+                  <p className="text-sm text-gray-600">MLB</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">🏒 Hockey</h4>
-                  <p className="text-sm text-gray-600">NHL, AHL</p>
+                  <p className="text-sm text-gray-600">NHL</p>
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-gray-800">⚽ Soccer</h4>
